@@ -66,8 +66,7 @@ public class mainWindow extends JFrame{
       RotationInterpolator obracacz = new RotationInterpolator(alpha_animacja, obrot_animacja_podstawa);
       obracacz.setSchedulingBounds(bounds);
       
-        Transform3D  tmp_rot0      = new Transform3D();
-        
+      wezel_scena.addChild(obrot_animacja_podstawa);
       
       
       
@@ -83,93 +82,73 @@ public class mainWindow extends JFrame{
       lightD.setColor(new Color3f(1.0f, 1.0f, 1.0f));
       wezel_scena.addChild(lightD);
 
+Appearance wygladPodstawy = new Appearance();
+wygladPodstawy.setColoringAttributes(new ColoringAttributes(0.9f,0.9f,0.8f,ColoringAttributes.NICEST));    
       
+Appearance  wygladCylindra = new Appearance();
+PolygonAttributes polygAttr = new PolygonAttributes();
+polygAttr.setPolygonMode(PolygonAttributes.POLYGON_LINE);
+wygladCylindra.setPolygonAttributes(polygAttr);     
+
+
+Transform3D  p_podstawy   = new Transform3D();
+Transform3D  p_cylindra   = new Transform3D(); 
+Transform3D  p_cylindra2  = new Transform3D();
+Transform3D  p_cylindra3  = new Transform3D();
+Transform3D  p_chwytaka   = new Transform3D();
+Transform3D  p_robota     = new Transform3D();
+Transform3D  tmp_rot_Z_90 = new Transform3D();         tmp_rot_Z_90.rotZ(Math.PI/2);  // obrot o 90*
+Transform3D  tmp_rot_Z_270= new Transform3D();         tmp_rot_Z_270.rotZ(-Math.PI); //obrot o -90*
+Transform3D  tmp_rot_X_90 = new Transform3D();         tmp_rot_X_90.rotX(Math.PI/2);
 //PODSTAWA
-        Appearance wygladPodstawy = new Appearance();
-        wygladPodstawy.setColoringAttributes(new ColoringAttributes(0.9f,0.9f,0.8f,ColoringAttributes.NICEST));
         Cylinder podstawa = new Cylinder(0.12f , 0.08f , wygladPodstawy);
-        Transform3D  p_podstawy   = new Transform3D();
         p_podstawy.set(new Vector3f(0.0f,-0.5f,0f));
+        
         TransformGroup podstawka = new TransformGroup(p_podstawy);
         podstawka.addChild(podstawa);
 //CZESC PIERWSZA ROBOTA
-        Appearance  wygladCylindra = new Appearance();
-
-        PolygonAttributes polygAttr = new PolygonAttributes();
-        polygAttr.setPolygonMode(PolygonAttributes.POLYGON_LINE);
-        wygladCylindra.setPolygonAttributes(polygAttr);
-        
-        //wygladCylindra.setColoringAttributes(new ColoringAttributes(0.3f,0.3f,0.3f,ColoringAttributes.NICEST));       //ewemtualny szary kolor robota
         Cylinder cylinder = new Cylinder(0.04f, 0.9f, wygladCylindra);
-        Transform3D  p_cylindra   = new Transform3D();
         p_cylindra.set(new Vector3f(0.0f,-0.0f,0.0f));
+        
         TransformGroup czesc_pierwsza = new TransformGroup(p_cylindra);
         czesc_pierwsza.addChild(cylinder);
 //CZESC DRUGA ROBOTA
         Box cylinder2 = new Box(0.1f, 0.2f, 0.1f ,wygladCylindra);
-        Transform3D  p_cylindra2   = new Transform3D();
         p_cylindra2.set(new Vector3f(-0.0f,0.5f,0.0f));
+        p_cylindra2.mul(tmp_rot_Z_90);             
         
-        Transform3D  tmp_rot      = new Transform3D();
-        tmp_rot.rotZ(Math.PI/2);
-        p_cylindra2.mul(tmp_rot);
-        
-       
-    
-        tmp_rot0.rotY(Math.PI/3);
-        tmp_rot0.mul(tmp_rot);
-     
-      obracacz.setTransformAxis(tmp_rot0);
-      obrot_animacja_podstawa.addChild(obracacz);
-      //obrot_animacja_podstawa.addChild(pozycja_obrotu);
-      wezel_scena.addChild(obrot_animacja_podstawa);
-      
-      
         TransformGroup czesc_druga = new TransformGroup(p_cylindra2);
-        czesc_druga.addChild(cylinder2);
-        //czesc_druga.addChild(obrot_animacja_pochyl);
-      //  czesc_druga.addChild(obrot_animacja_pochyl);
-        
+        czesc_druga.addChild(cylinder2);       
 //CZESC TRZECIA ROBOTA
         Cylinder cylinder3 = new Cylinder(0.04f, 1f, wygladCylindra);
-        Transform3D  p_cylindra3   = new Transform3D();
         p_cylindra3.set(new Vector3f(-0f,0.5f,0.0f));
-  
-        Transform3D  tmp_rot2      = new Transform3D();
-        tmp_rot2.rotY(-Math.PI/2);
-       // tmp_rot2.rotZ(Math.PI/2);
+        //p_cylindra3.mul( tmp_rot_Z_270);           //cofniecie obrotu o 90* (względem piprzedniego transformgrupa)
         
-        p_cylindra3.mul( tmp_rot2);
         TransformGroup czesc_trzecia = new TransformGroup(p_cylindra3);
         czesc_trzecia.addChild(cylinder3);
 //chwytak
-
-
         Cylinder chwytak_ = new Cylinder(0.04f, 0.5f, wygladCylindra);
-        Transform3D  p_chwytaka   = new Transform3D();
         p_chwytaka.set(new Vector3f(-0.1f,0.9f,0.0f));
-        p_chwytaka.mul( tmp_rot);
+        p_chwytaka.mul( tmp_rot_Z_90);
 
-        
         TransformGroup chwytak = new TransformGroup(p_chwytaka);
         chwytak.addChild(chwytak_);
         
-              
-      Transform3D  p_robota   = new Transform3D();
+        
+        p_cylindra2.mul(tmp_rot_X_90);
+        obracacz.setTransformAxis(p_cylindra2);
+        obrot_animacja_podstawa.addChild(obracacz); 
+        
+      
       p_robota.set(new Vector3f(0f,0f,0.0f));
       
       TransformGroup robot = new TransformGroup(p_robota);
-     // robot.addChild(podstawka);
       robot.addChild(czesc_pierwsza);
       czesc_druga.addChild(czesc_trzecia);
       czesc_druga.addChild(chwytak);
       obrot_animacja_podstawa.addChild(czesc_druga);
-     // obrot_animacja_podstawa.addChild(robot);
-     // obrot_animacja_podstawa.addChild(robot);
       wezel_scena.addChild(podstawka);
       wezel_scena.addChild(robot);
-      //obrot_animacja_pochyl.addChild(robot);
-
             
       return wezel_scena;
 
