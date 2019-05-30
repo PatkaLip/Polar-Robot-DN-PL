@@ -21,11 +21,11 @@ import javax.vecmath.Vector3f;
 
 public class mainWindow extends JFrame{
     public int jaka_akcja ; 
-    BranchGroup wezel_scena;
+    BranchGroup wezel_scena, scena;
     BoundingSphere bounds ;
-    TransformGroup obrot_animacja_podstawa,obrot_animacja_gora, robot, podstawka, czesc_pierwsza, czesc_druga, czesc_trzecia, chwytak;
+    TransformGroup obrot_animacja_podstawa,obrot_animacja_gora, robot, podstawka, czesc_pierwsza, czesc_druga, czesc_trzecia, chwytak,sroba_1, sroba_2;
     RotationInterpolator obracacz, obracacz2;
-    Transform3D  p_podstawy, p_cylindra, p_cylindra2, p_cylindra3, p_chwytaka, p_robota, tmp_rot_Z_90, tmp_rot_Z_270,tmp_rot_X_90, tmp_rot_X_270;
+    Transform3D  p_podstawy, p_cylindra, p_cylindra2, p_cylindra3, p_chwytaka, p_robota, p_sroba1, p_sroba2, tmp_rot_Z_90, tmp_rot_Z_270,tmp_rot_X_90, tmp_rot_X_270;
 
 
             
@@ -40,26 +40,25 @@ public class mainWindow extends JFrame{
            SimpleUniverse.getPreferredConfiguration();
 
         Canvas3D canvas3D = new Canvas3D(config);
-        canvas3D.setPreferredSize(new Dimension(1950,900));
-
+        canvas3D.setPreferredSize(new Dimension(1950,1000));
         add(canvas3D);
         pack();
         setVisible(true);
-
         BranchGroup scena = utworzScene();
 	    scena.compile();
-
+        
+        
         SimpleUniverse simpleU = new SimpleUniverse(canvas3D);
 
         Transform3D przesuniecie_obserwatora = new Transform3D();
-        przesuniecie_obserwatora.set(new Vector3f(-0.0f,0.0f,4.0f));
+        przesuniecie_obserwatora.set(new Vector3f(-0.0f,0.0f,6.0f));
 
         simpleU.getViewingPlatform().getViewPlatformTransform().setTransform(przesuniecie_obserwatora);
 
-        simpleU.addBranchGraph(scena);
-        
-        
+        simpleU.addBranchGraph(scena); 
     }
+    
+ 
 
     
     
@@ -68,11 +67,13 @@ public class mainWindow extends JFrame{
        wezel_scena = new BranchGroup();
        bounds =  new BoundingSphere(new Point3d(0, 0, 0), 5);
             
-      
+      //sterowanie();
       swiatla();
       robot();
-      obrot_A();
-      obrot_B();
+          obrot_A();
+          obrot_B();
+     
+      
       return wezel_scena;
    }
    
@@ -126,8 +127,18 @@ public class mainWindow extends JFrame{
   p_cylindra2   = new Transform3D();  
   p_cylindra3   = new Transform3D();  
   p_chwytaka    = new Transform3D();  
-  p_robota    = new Transform3D();   
-
+  p_robota      = new Transform3D(); 
+  p_sroba1      = new Transform3D();  
+  p_sroba2      = new Transform3D();    
+Cylinder sroba1 = new Cylinder(0.05f , 0.03f , wygladPodstawy);
+p_sroba1.set(new Vector3f(0.1f,0.45f,0f));
+p_sroba1.mul(tmp_rot_Z_90);
+sroba_1 = new TransformGroup(p_sroba1);
+sroba_1.addChild(sroba1);
+Cylinder sroba2 = new Cylinder(0.05f , 0.03f , wygladPodstawy);
+p_sroba2.set(new Vector3f(0.0f,-0.5f,0f));
+sroba_2 = new TransformGroup(p_sroba2);
+sroba_2.addChild(sroba2);
 //PODSTAWA
         Cylinder podstawa = new Cylinder(0.12f , 0.08f , wygladPodstawy);
         p_podstawy.set(new Vector3f(0.0f,-0.5f,0f));
@@ -151,14 +162,14 @@ public class mainWindow extends JFrame{
          czesc_druga.addChild(ustawiam_lacznik); 
 //CZESC TRZECIA ROBOTA
         Cylinder cylinder3 = new Cylinder(0.04f, 1f, wygladCylindra);
-        p_cylindra3.set(new Vector3f(-0f,0.5f,0.0f));
+        p_cylindra3.set(new Vector3f(-0f,0.2f,0.0f));
         //p_cylindra3.mul( tmp_rot_Z_270);           //cofniecie obrotu o 90* (względem piprzedniego transformgrupa)
         
         czesc_trzecia = new TransformGroup(p_cylindra3);
         czesc_trzecia.addChild(cylinder3);
 //chwytak
         Cylinder chwytak_ = new Cylinder(0.04f, 0.5f, wygladCylindra);
-        p_chwytaka.set(new Vector3f(-0.20f,0.45f,0.0f));
+        p_chwytaka.set(new Vector3f(-0.15f,0.45f,0.0f));
         p_chwytaka.mul( tmp_rot_Z_90);
 
         chwytak = new TransformGroup(p_chwytaka);
@@ -168,10 +179,10 @@ public class mainWindow extends JFrame{
         p_robota.set(new Vector3f(0f,0f,0.0f));
       
         robot = new TransformGroup(p_robota);
-        
-        //pomocniczy.addChild(obrot_animacja_podstawa);
-        //pomocniczy.addChild(robot);
+       
+        czesc_trzecia.addChild(sroba_1);
         czesc_trzecia.addChild(chwytak);
+        czesc_trzecia.addChild(sroba_2);
         czesc_druga.addChild(czesc_trzecia);
         obrot_animacja_gora.addChild(czesc_druga);
         pomocniczy.addChild(obrot_animacja_gora);
@@ -180,7 +191,6 @@ public class mainWindow extends JFrame{
         obrot_animacja_podstawa.addChild(robot);
         
       wezel_scena.addChild(podstawka);
-      //wezel_scena.addChild(robot);
       wezel_scena.addChild(obrot_animacja_podstawa);
       
    }
@@ -192,10 +202,12 @@ public class mainWindow extends JFrame{
    }
    
    void obrot_B(){
-       //p_robota.mul(tmp_rot_X_90);
        obracacz.setTransformAxis(p_robota);
        obrot_animacja_podstawa.addChild(obracacz);
    }
+   
+ 
+   
 
    
    
@@ -207,37 +219,5 @@ public class mainWindow extends JFrame{
             
     }
 }
-
-
-//p_cylindra2.mul(tmp_rot_X_90);
-//            obracacz.setTransformAxis(p_cylindra2);
-//            obrot_animacja_podstawa.addChild(obracacz); 
-//        
-
-
-
-//   public int  Sterowanie() {
-//    
-//    this.addKeyListener(new KeyListener(){
-//        public void keyPressed(KeyEvent e){ 
-//            switch(e.getKeyCode()){ 
-//                case KeyEvent.VK_UP: 
-//                    jaka_akcja=1;
-//                    break; 
-//            } 
-//        }
-//        public void keyReleased(KeyEvent e){ 
-//            switch(e.getKeyCode()){ 
-//                case KeyEvent.VK_UP: 
-//                    break; 
-//            } 
-//        }
-//        public void keyTyped(KeyEvent e) {
-//        } 
-//    } 
-//    ); 
-// return jaka_akcja;
-//}
-
 
 
