@@ -40,7 +40,7 @@ public class mainWindow extends JFrame implements KeyListener {
     
     int zadanie;
         
-    Vector3f pozycja_sroba1     = new Vector3f(0.1f,0.45f,0.0f);
+    Vector3f pozycja_sroba1     = new Vector3f(0.0f,-0.25f,0.0f);
     Vector3f pozycja_sroba2     = new Vector3f(0.0f,-0.5f,0.0f);
     Vector3f pozycja_podstawy   = new Vector3f(0.0f,-0.5f,0.0f);
     Vector3f pozycja_cylindra   = new Vector3f(0.0f,-0.0f,0.0f);
@@ -48,7 +48,8 @@ public class mainWindow extends JFrame implements KeyListener {
     Vector3f pozyjcja_cylindra3 = new Vector3f(0.0f, 0.0f,0.0f);
     Vector3f pozycja_robota     = new Vector3f(0.0f,0.0f, 0.0f); 
     Vector3f pozycja_chwytaka   = new Vector3f(-0.15f,0.45f,0.0f);
-     
+    
+    float chwytak_X = -0.15f;
     float czesc_trzecia_Y = 0;
     float krok = 0.02f;
     
@@ -112,21 +113,6 @@ public class mainWindow extends JFrame implements KeyListener {
         wezel_scena = new BranchGroup();
         bounds =  new BoundingSphere(new Point3d(0, 0, 0), 5);
   
-        obrot_animacja_gora = new TransformGroup();                                    /////////////
-        obrot_animacja_gora.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);        
-        Alpha alpha_animacja = new Alpha(-1,2500); 
-        obracacz2 = new RotationInterpolator(alpha_animacja, obrot_animacja_gora);
-        obracacz2.setSchedulingBounds(bounds);
-        obracacz2.setMaximumAngle(0.5f);
-        obracacz2.setMinimumAngle(0f);
-
-        
-        obrot_animacja_podstawa = new TransformGroup();
-        obrot_animacja_podstawa.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
-        Alpha alpha_animacja2 = new Alpha(-1,25000); 
-        obracacz = new RotationInterpolator(alpha_animacja2, obrot_animacja_podstawa);
-        obracacz.setSchedulingBounds(bounds);                                       ////////////////
-            
         swiatla();
         robot();
        
@@ -152,20 +138,20 @@ public class mainWindow extends JFrame implements KeyListener {
       
   public void robot(){
         
-//        obrot_animacja_gora = new TransformGroup();
-//        obrot_animacja_gora.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
-//        Alpha alpha_animacja = new Alpha(-1,2500); 
-//        obracacz2 = new RotationInterpolator(alpha_animacja, obrot_animacja_gora);
-//        obracacz2.setSchedulingBounds(bounds);
-//        obracacz2.setMaximumAngle(0.5f);
-//        obracacz2.setMinimumAngle(0f);
-//
-//        
-//        obrot_animacja_podstawa = new TransformGroup();
-//        obrot_animacja_podstawa.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
-//        Alpha alpha_animacja2 = new Alpha(-1,25000); 
-//        obracacz = new RotationInterpolator(alpha_animacja2, obrot_animacja_podstawa);
-//        obracacz.setSchedulingBounds(bounds);
+        obrot_animacja_gora = new TransformGroup();
+        obrot_animacja_gora.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
+        Alpha alpha_animacja = new Alpha(-1,2500); 
+        obracacz2 = new RotationInterpolator(alpha_animacja, obrot_animacja_gora);
+        obracacz2.setSchedulingBounds(bounds);
+        obracacz2.setMaximumAngle(0.5f);
+        obracacz2.setMinimumAngle(0f);
+
+        
+        obrot_animacja_podstawa = new TransformGroup();
+        obrot_animacja_podstawa.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
+        Alpha alpha_animacja2 = new Alpha(-1,25000); 
+        obracacz = new RotationInterpolator(alpha_animacja2, obrot_animacja_podstawa);
+        obracacz.setSchedulingBounds(bounds);
 
         
         tmp_rot_Z_90.rotZ(Math.PI/2);  // obrot o 90*
@@ -193,7 +179,7 @@ public class mainWindow extends JFrame implements KeyListener {
 //SROBY 
         Cylinder sroba1 = new Cylinder(0.05f , 0.03f , wygladPodstawy);
         p_sroba1.set(pozycja_sroba1);
-        p_sroba1.mul(tmp_rot_Z_90);
+     //   p_sroba1.mul(tmp_rot_Z_90);
         sroba_1 = new TransformGroup(p_sroba1);
         sroba_1.addChild(sroba1);
         
@@ -202,19 +188,19 @@ public class mainWindow extends JFrame implements KeyListener {
         sroba_2 = new TransformGroup(p_sroba2);
         sroba_2.addChild(sroba2);
 //PODSTAWA
-        Cylinder podstawa = new Cylinder(0.12f , 0.08f , wygladPodstawy);
+        Cylinder podstawa = new Cylinder(0.12f , 0.08f ,Cylinder.ALLOW_CHILDREN_READ + Cylinder.ALLOW_PARENT_READ , wygladPodstawy);
         p_podstawy.set(pozycja_podstawy);
         
         podstawka = new TransformGroup(p_podstawy);
         podstawka.addChild(podstawa);
 //CZESC PIERWSZA ROBOTA
-        Cylinder cylinder = new Cylinder(0.04f, 0.9f, wygladCylindra);
+        Cylinder cylinder = new Cylinder(0.04f, 0.9f,Cylinder.ALLOW_CHILDREN_READ + Cylinder.ALLOW_PARENT_READ , wygladCylindra);
         p_cylindra.set(pozycja_cylindra);
         
         czesc_pierwsza = new TransformGroup(p_cylindra);
         czesc_pierwsza.addChild(cylinder);
 //CZESC DRUGA ROBOTA
-        Cylinder lacznik = new Cylinder(0.12f , 0.15f , wygladPodstawy);
+        Cylinder lacznik = new Cylinder(0.12f , 0.15f ,Cylinder.ALLOW_CHILDREN_READ + Cylinder.ALLOW_PARENT_READ , wygladPodstawy);
         TransformGroup ustawiam_lacznik = new TransformGroup(tmp_rot_X_90);
         ustawiam_lacznik.addChild(lacznik);
         p_cylindra2.set(pozycja_cylindra2);
@@ -236,6 +222,7 @@ public class mainWindow extends JFrame implements KeyListener {
         p_chwytaka.mul( tmp_rot_Z_90);
 
         chwytak = new TransformGroup(p_chwytaka);
+        chwytak.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
         chwytak.addChild(chwytak_);
 // Składanie robota        
         TransformGroup pomocniczy = new TransformGroup();
@@ -244,7 +231,7 @@ public class mainWindow extends JFrame implements KeyListener {
       
         robot = new TransformGroup(p_robota);
        
-        czesc_trzecia.addChild(sroba_1);
+        chwytak.addChild(sroba_1);
         czesc_trzecia.addChild(chwytak);
         czesc_trzecia.addChild(sroba_2);       
         czesc_druga.addChild(czesc_trzecia);
@@ -276,10 +263,18 @@ public class mainWindow extends JFrame implements KeyListener {
     public void keyPressed(KeyEvent e) {
         switch(e.getKeyCode()){
             
-        case KeyEvent.VK_UP:              
+        case KeyEvent.VK_UP: 
+            chwytak_X += krok;
+
+            p_chwytaka.setTranslation(new Vector3f(chwytak_X,0.45f,0.0f));
+            chwytak.setTransform(p_chwytaka);
             break;
         
         case KeyEvent.VK_DOWN:
+            chwytak_X -= krok;
+
+            p_chwytaka.setTranslation(new Vector3f(chwytak_X,0.45f,0.0f));
+            chwytak.setTransform(p_chwytaka); 
             break;
             
         case KeyEvent.VK_LEFT:
