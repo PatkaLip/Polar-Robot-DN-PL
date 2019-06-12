@@ -27,6 +27,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
 import java.util.TimerTask;
+import javax.media.j3d.Background;
 
 
 
@@ -37,6 +38,7 @@ public class mainWindow extends JFrame implements KeyListener {
     Transform3D     p_podstawy, p_cylindra, p_cylindra2, p_cylindra3, p_chwytaka, p_robota, p_sroba1, p_sroba2, obrot_laczika_p,obrot_laczika_t, obrot_podstawy_p, obrot_podstawy_t;
     TransformGroup  obrot_animacja_podstawa,obrot_animacja_gora, robot, podstawka, czesc_pierwsza, czesc_druga, czesc_trzecia, chwytak,sroba_1, sroba_2;
     RotationInterpolator obracacz, obracacz2;
+    
     
     int zadanie;
         
@@ -72,12 +74,17 @@ public class mainWindow extends JFrame implements KeyListener {
         setResizable(false);
 
         GraphicsConfiguration config = SimpleUniverse.getPreferredConfiguration();
-                
+        
+        
+        
+        
         zegar = new Timer();
         zegar.schedule(zegar_ruchu, 0, 200);
                 
         Canvas3D canvas3D = new Canvas3D(config);
         canvas3D.setPreferredSize(new Dimension(1200,700));
+        
+        
         add(canvas3D);
         pack();
         setVisible(true);
@@ -89,10 +96,10 @@ public class mainWindow extends JFrame implements KeyListener {
 
         
         SimpleUniverse simpleU = new SimpleUniverse(canvas3D);
-
+        
         //Ustawienie obserwatora
         Transform3D przesuniecie_obserwatora = new Transform3D();
-        przesuniecie_obserwatora.set(new Vector3f(-0.0f,0.0f,6.0f));
+        przesuniecie_obserwatora.set(new Vector3f(-0.0f,0.0f,4.0f));
         simpleU.getViewingPlatform().getViewPlatformTransform().setTransform(przesuniecie_obserwatora);
 
         //Obsługa myszki
@@ -113,15 +120,51 @@ public class mainWindow extends JFrame implements KeyListener {
 
         wezel_scena = new BranchGroup();
         bounds =  new BoundingSphere(new Point3d(0, 0, 0), 5);
+        
+        
   
         swiatla();
         robot();
+        tlo();
        
-       // obrot_A();
-       // obrot_B();
         
        return wezel_scena;
    }
+    
+    public void tlo (){
+        TextureLoader loader_niebo = new TextureLoader("img/back.jpg",null);          
+        ImageComponent2D image_niebo = loader_niebo.getImage();
+
+        TextureLoader loader_stol = new TextureLoader("img/panele.jpg",null);          
+        ImageComponent2D image_stol = loader_stol.getImage();
+        
+        
+        Texture2D niebo = new Texture2D(Texture.BASE_LEVEL, Texture.RGBA,
+                                        image_niebo.getWidth(), image_niebo.getHeight());
+
+        niebo.setImage(0, image_niebo);
+        niebo.setBoundaryModeS(Texture.WRAP);
+        niebo.setBoundaryModeT(Texture.WRAP);
+        Appearance wyglad_tla = new Appearance();
+        wyglad_tla.setTexture(niebo);
+        Sphere sfera = new Sphere(5f,Sphere.GENERATE_NORMALS_INWARD| Cylinder.GENERATE_TEXTURE_COORDS, wyglad_tla);
+        wezel_scena.addChild(sfera);
+        
+        
+        Texture2D stol = new Texture2D(Texture.BASE_LEVEL, Texture.RGBA,
+                                        image_stol.getWidth(), image_stol.getHeight());
+        stol.setImage(0, image_stol);
+        stol.setBoundaryModeS(Texture.WRAP);
+        stol.setBoundaryModeT(Texture.WRAP);
+        Appearance w_stolik = new Appearance();
+        w_stolik.setTexture(stol);
+        Box stolik = new Box(10, 0.4f, 10, w_stolik);
+        Transform3D p_stolika = new Transform3D();
+        p_stolika.set(new Vector3f(0.0f,-0.9f,0.0f));
+        TransformGroup stoliki = new TransformGroup(p_stolika);
+        stoliki.addChild(stolik);
+        wezel_scena.addChild(stoliki);
+    }
    
  public void swiatla(){
       AmbientLight lightA = new AmbientLight();
@@ -134,6 +177,8 @@ public class mainWindow extends JFrame implements KeyListener {
       lightD.setColor(new Color3f(0f, 0f, 0f));
       wezel_scena.addChild(lightD);
    }
+ 
+ 
 
       
       
@@ -258,19 +303,7 @@ public class mainWindow extends JFrame implements KeyListener {
         obrot_podstawy_t = new Transform3D();
         obrot_podstawy_t.rotY(-Math.PI/30);
    }
-     
-   public void obrot_A(){
-                    
-        p_cylindra2.mul(tmp_rot_X_270);
-        obracacz2.setTransformAxis(p_cylindra2);
-        obrot_animacja_gora.addChild(obracacz2);
-   } 
-
-    
-   public void obrot_B(){
-       obracacz.setTransformAxis(p_robota);
-       obrot_animacja_podstawa.addChild(obracacz);
-   } 
+  
    
     
     @Override
