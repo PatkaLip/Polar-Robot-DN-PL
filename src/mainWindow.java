@@ -64,7 +64,7 @@ public class mainWindow extends JFrame implements KeyListener {
     Transform3D tmp_rot_X_90  = new Transform3D();
     Transform3D tmp_rot_X_270 = new Transform3D();
     TextureLoader loader_tekstura = new TextureLoader("img/metal.jpg",null);
-    TextureLoader loader_niebo = new TextureLoader("img/back.jpg",null); 
+    TextureLoader loader_niebo = new TextureLoader("img/back2.jpg",null); 
     TextureLoader loader_stol = new TextureLoader("img/panele.jpg",null);
     Timer zegar = new Timer();
     TimerTask zegar_ruchu = new TimerTask() {
@@ -110,7 +110,7 @@ public class mainWindow extends JFrame implements KeyListener {
         //Obsługa myszki
         OrbitBehavior orbit = new OrbitBehavior(canvas3D, OrbitBehavior.REVERSE_ROTATE);
         orbit.setSchedulingBounds(new BoundingSphere());
-	//orbit.setRotYFactor(0);
+	orbit.setRotYFactor(0);
 	orbit.setMinRadius(Math.PI);
 	orbit.setBounds(new BoundingSphere(new Point3d(0.0d, 0.0d, 0.0d), 20d));
         
@@ -126,8 +126,10 @@ public class mainWindow extends JFrame implements KeyListener {
         wezel_scena = new BranchGroup();
         bounds =  new BoundingSphere(new Point3d(0, 0, 0), 5);
         wyglad_klockow = new Appearance();
-        wyglad_klockow.setColoringAttributes(new ColoringAttributes(1f,0.2f,0.2f,ColoringAttributes.NICEST)); 
-        
+        //wyglad_klockow.setColoringAttributes(new ColoringAttributes(1f,0.2f,0.2f,ColoringAttributes.NICEST)); 
+        Material material = new Material(new Color3f(0.8f, 0.9f,0.8f), new Color3f(0.1f,0.2f,0.3f),
+                                             new Color3f(0.2f, 0.9f, 0.0f), new Color3f(1.0f, 0.8f, 1.0f), 80.0f);
+        wyglad_klockow.setMaterial(material);
   
         swiatla();
         robot();
@@ -188,7 +190,11 @@ public class mainWindow extends JFrame implements KeyListener {
       AmbientLight lightA = new AmbientLight();
       lightA.setInfluencingBounds(bounds);
       wezel_scena.addChild(lightA);
-
+      
+      SpotLight lightB = new SpotLight(new Color3f(0.5f, 0.5f, 0.5f), new Point3f(3f, 4f, 4f), new Point3f(0.5f, 0.5f, 0.5f), new Vector3f(-2f,-1f,-3f), 20f, 20f);
+      lightB.setInfluencingBounds(bounds);
+      wezel_scena.addChild(lightB);
+      
       DirectionalLight lightD = new DirectionalLight();
       lightD.setInfluencingBounds(bounds);
       lightD.setDirection(new Vector3f(0.0f, 0.0f, -1.0f));
