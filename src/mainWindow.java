@@ -34,7 +34,7 @@ public class mainWindow extends JFrame implements KeyListener {
 
     BranchGroup     wezel_scena, scena;
     BoundingSphere  bounds ;
-    Transform3D     p_podstawy, p_cylindra, p_cylindra2, p_cylindra3, p_chwytaka, p_robota, p_sroba1, p_sroba2;
+    Transform3D     p_podstawy, p_cylindra, p_cylindra2, p_cylindra3, p_chwytaka, p_robota, p_sroba1, p_sroba2, obrot_laczika_p,obrot_laczika_t, obrot_podstawy_p, obrot_podstawy_t;
     TransformGroup  obrot_animacja_podstawa,obrot_animacja_gora, robot, podstawka, czesc_pierwsza, czesc_druga, czesc_trzecia, chwytak,sroba_1, sroba_2;
     RotationInterpolator obracacz, obracacz2;
     
@@ -52,6 +52,7 @@ public class mainWindow extends JFrame implements KeyListener {
     float chwytak_X = -0.15f;
     float czesc_trzecia_Y = 0;
     float krok = 0.02f;
+    //double obrot =(double) Math.PI/20;
     
     Transform3D tmp_rot_Z_90  = new Transform3D();
     Transform3D tmp_rot_Z_270 = new Transform3D();
@@ -116,8 +117,8 @@ public class mainWindow extends JFrame implements KeyListener {
         swiatla();
         robot();
        
-        obrot_A();
-        obrot_B();
+       // obrot_A();
+       // obrot_B();
         
        return wezel_scena;
    }
@@ -198,6 +199,7 @@ public class mainWindow extends JFrame implements KeyListener {
         p_cylindra.set(pozycja_cylindra);
         
         czesc_pierwsza = new TransformGroup(p_cylindra);
+        czesc_pierwsza.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
         czesc_pierwsza.addChild(cylinder);
 //CZESC DRUGA ROBOTA
         Cylinder lacznik = new Cylinder(0.12f , 0.15f ,Cylinder.ALLOW_CHILDREN_READ + Cylinder.ALLOW_PARENT_READ , wygladPodstawy);
@@ -243,6 +245,18 @@ public class mainWindow extends JFrame implements KeyListener {
         
         wezel_scena.addChild(podstawka);
         wezel_scena.addChild(obrot_animacja_podstawa);  
+        
+        obrot_laczika_p = new Transform3D();
+        obrot_laczika_p.rotZ(Math.PI/20);
+        
+        obrot_laczika_t = new Transform3D();
+        obrot_laczika_t.rotZ(-Math.PI/20);
+        
+        obrot_podstawy_p = new Transform3D();
+        obrot_podstawy_p.rotY(Math.PI/20);
+        
+        obrot_podstawy_t = new Transform3D();
+        obrot_podstawy_t.rotY(-Math.PI/20);
    }
      
    public void obrot_A(){
@@ -277,7 +291,7 @@ public class mainWindow extends JFrame implements KeyListener {
             chwytak.setTransform(p_chwytaka); 
             break;
             
-        case KeyEvent.VK_LEFT:
+        case KeyEvent.VK_RIGHT:
             System.out.println("bb"); 
 
             czesc_trzecia_Y -= krok;
@@ -288,7 +302,7 @@ public class mainWindow extends JFrame implements KeyListener {
             
             break;
 
-        case KeyEvent.VK_RIGHT: 
+        case KeyEvent.VK_LEFT: 
             
             czesc_trzecia_Y += krok;
 
@@ -296,6 +310,23 @@ public class mainWindow extends JFrame implements KeyListener {
             czesc_trzecia.setTransform(p_cylindra3);            
                     
             break;
+        case KeyEvent.VK_W:
+            p_cylindra2.mul(obrot_laczika_p);
+            czesc_druga.setTransform(p_cylindra2);
+            break;
+        case KeyEvent.VK_S:
+            p_cylindra2.mul(obrot_laczika_t);
+            czesc_druga.setTransform(p_cylindra2);
+            break;
+        case KeyEvent.VK_A:
+            p_cylindra.mul(obrot_podstawy_p);
+            czesc_pierwsza.setTransform(p_cylindra);
+            break;
+        case KeyEvent.VK_D:
+            p_cylindra.mul(obrot_podstawy_t);
+            czesc_pierwsza.setTransform(p_cylindra);
+            break;    
+            
         }   
     }
     public void keyReleased(KeyEvent e) {
