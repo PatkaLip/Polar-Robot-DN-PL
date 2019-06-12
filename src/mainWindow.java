@@ -36,8 +36,11 @@ public class mainWindow extends JFrame implements KeyListener {
     BranchGroup     wezel_scena, scena;
     BoundingSphere  bounds ;
     Transform3D     p_podstawy, p_cylindra, p_cylindra2, p_cylindra3, p_chwytaka, p_robota, p_sroba1, p_sroba2, obrot_laczika_p,obrot_laczika_t, obrot_podstawy_p, obrot_podstawy_t;
-    TransformGroup  obrot_animacja_podstawa,obrot_animacja_gora, robot, podstawka, czesc_pierwsza, czesc_druga, czesc_trzecia, chwytak,sroba_1, sroba_2;
-    RotationInterpolator obracacz, obracacz2;
+    TransformGroup  robot, podstawka, czesc_pierwsza, czesc_druga, czesc_trzecia, chwytak,sroba_1, sroba_2;
+    Box[] klocki = new Box[10];
+    Transform3D[] p_klocka = new Transform3D[10];
+    TransformGroup[] _klocki = new TransformGroup[10];
+    Appearance wyglad_klockow;
     
     
     int zadanie;
@@ -60,7 +63,9 @@ public class mainWindow extends JFrame implements KeyListener {
     Transform3D tmp_rot_Z_270 = new Transform3D();
     Transform3D tmp_rot_X_90  = new Transform3D();
     Transform3D tmp_rot_X_270 = new Transform3D();
-    
+    TextureLoader loader_tekstura = new TextureLoader("img/metal.jpg",null);
+    TextureLoader loader_niebo = new TextureLoader("img/back.jpg",null); 
+    TextureLoader loader_stol = new TextureLoader("img/panele.jpg",null);
     Timer zegar = new Timer();
     TimerTask zegar_ruchu = new TimerTask() {
 	public void run() {
@@ -105,7 +110,7 @@ public class mainWindow extends JFrame implements KeyListener {
         //Obsługa myszki
         OrbitBehavior orbit = new OrbitBehavior(canvas3D, OrbitBehavior.REVERSE_ROTATE);
         orbit.setSchedulingBounds(new BoundingSphere());
-	orbit.setRotYFactor(0);
+	//orbit.setRotYFactor(0);
 	orbit.setMinRadius(Math.PI);
 	orbit.setBounds(new BoundingSphere(new Point3d(0.0d, 0.0d, 0.0d), 20d));
         
@@ -120,22 +125,35 @@ public class mainWindow extends JFrame implements KeyListener {
 
         wezel_scena = new BranchGroup();
         bounds =  new BoundingSphere(new Point3d(0, 0, 0), 5);
-        
+        wyglad_klockow = new Appearance();
+        wyglad_klockow.setColoringAttributes(new ColoringAttributes(1f,0.2f,0.2f,ColoringAttributes.NICEST)); 
         
   
         swiatla();
         robot();
         tlo();
+        klocki();
        
         
        return wezel_scena;
    }
     
+    public void klocki(){
+        for(int i=0; i<10; i++){
+            klocki[i] = new Box(0.1f, 0.1f, 0.1f, wyglad_klockow);
+            p_klocka[i]= new Transform3D();
+            p_klocka[i].set(new Vector3f(-1.4f+0.2f+i*0.3f, -0.43f, 0f));       /// tu trzeba użyć rand do losowaia pozycji!!! 
+            _klocki[i] = new TransformGroup(p_klocka[i]);
+            _klocki[i].addChild(klocki[i]);
+            wezel_scena.addChild(_klocki[i]);   
+        }        
+    }
+    
     public void tlo (){
-        TextureLoader loader_niebo = new TextureLoader("img/back.jpg",null);          
+        
         ImageComponent2D image_niebo = loader_niebo.getImage();
 
-        TextureLoader loader_stol = new TextureLoader("img/panele.jpg",null);          
+                  
         ImageComponent2D image_stol = loader_stol.getImage();
         
         
@@ -184,22 +202,6 @@ public class mainWindow extends JFrame implements KeyListener {
       
   public void robot(){
         
-        obrot_animacja_gora = new TransformGroup();
-        obrot_animacja_gora.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
-        Alpha alpha_animacja = new Alpha(-1,2500); 
-        obracacz2 = new RotationInterpolator(alpha_animacja, obrot_animacja_gora);
-        obracacz2.setSchedulingBounds(bounds);
-        obracacz2.setMaximumAngle(0.5f);
-        obracacz2.setMinimumAngle(0f);
-
-        
-        obrot_animacja_podstawa = new TransformGroup();
-        obrot_animacja_podstawa.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
-        Alpha alpha_animacja2 = new Alpha(-1,25000); 
-        obracacz = new RotationInterpolator(alpha_animacja2, obrot_animacja_podstawa);
-        obracacz.setSchedulingBounds(bounds);
-
-        
         tmp_rot_Z_90.rotZ(Math.PI/2);  // obrot o 90*
         tmp_rot_Z_270.rotZ(-Math.PI); //obrot o -90*
         tmp_rot_X_90.rotX(Math.PI/2);
@@ -207,12 +209,25 @@ public class mainWindow extends JFrame implements KeyListener {
 
         
         Appearance wygladPodstawy = new Appearance();
-        wygladPodstawy.setColoringAttributes(new ColoringAttributes(0.9f,0.9f,0.8f,ColoringAttributes.NICEST));    
+        wygladPodstawy.setColoringAttributes(new ColoringAttributes(0.9f,0.9f,0.8f,ColoringAttributes.NICEST));   
+        
+                  
+        ImageComponent2D image_tekstura = loader_tekstura.getImage();
+    
+        
+        Texture2D metal = new Texture2D(Texture.BASE_LEVEL, Texture.RGBA,
+                                        image_tekstura.getWidth(), image_tekstura.getHeight());
+
+        metal.setImage(0, image_tekstura);
+        metal.setBoundaryModeS(Texture.WRAP);
+        metal.setBoundaryModeT(Texture.WRAP);
+        
       
         Appearance  wygladCylindra = new Appearance();
-        PolygonAttributes polygAttr = new PolygonAttributes();
-        polygAttr.setPolygonMode(PolygonAttributes.POLYGON_LINE);
-        wygladCylindra.setPolygonAttributes(polygAttr);     
+        wygladCylindra.setTexture(metal);
+        //PolygonAttributes polygAttr = new PolygonAttributes();
+        //polygAttr.setPolygonMode(PolygonAttributes.POLYGON_LINE);
+        //wygladCylindra.setPolygonAttributes(polygAttr);     
 
         p_podstawy    = new Transform3D();   
         p_cylindra    = new Transform3D();  
@@ -273,7 +288,7 @@ public class mainWindow extends JFrame implements KeyListener {
         chwytak.addChild(chwytak_);
 // Składanie robota        
         TransformGroup pomocniczy = new TransformGroup();
-        
+        TransformGroup pomocniczy2 = new TransformGroup();
         p_robota.set(pozycja_robota);
       
         robot = new TransformGroup(p_robota);
@@ -282,20 +297,19 @@ public class mainWindow extends JFrame implements KeyListener {
         czesc_trzecia.addChild(chwytak);
         czesc_trzecia.addChild(sroba_2);       
         czesc_druga.addChild(czesc_trzecia);
-        obrot_animacja_gora.addChild(czesc_druga);
-        pomocniczy.addChild(obrot_animacja_gora);
+        pomocniczy.addChild(czesc_druga);
         robot.addChild(czesc_pierwsza);
         czesc_pierwsza.addChild(pomocniczy);
-        obrot_animacja_podstawa.addChild(robot);
+        pomocniczy2.addChild(robot);
         
         wezel_scena.addChild(podstawka);
-        wezel_scena.addChild(obrot_animacja_podstawa);  
+        wezel_scena.addChild(pomocniczy2);  
         
         obrot_laczika_p = new Transform3D();
-        obrot_laczika_p.rotZ(Math.PI/30);
+        obrot_laczika_p.rotZ(-Math.PI/30);
         
         obrot_laczika_t = new Transform3D();
-        obrot_laczika_t.rotZ(-Math.PI/30);
+        obrot_laczika_t.rotZ(Math.PI/30);
         
         obrot_podstawy_p = new Transform3D();
         obrot_podstawy_p.rotY(Math.PI/30);
