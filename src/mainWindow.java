@@ -247,16 +247,16 @@ public class mainWindow extends JFrame implements KeyListener {
         wezel_scena.addChild(obrot_animacja_podstawa);  
         
         obrot_laczika_p = new Transform3D();
-        obrot_laczika_p.rotZ(Math.PI/20);
+        obrot_laczika_p.rotZ(Math.PI/30);
         
         obrot_laczika_t = new Transform3D();
-        obrot_laczika_t.rotZ(-Math.PI/20);
+        obrot_laczika_t.rotZ(-Math.PI/30);
         
         obrot_podstawy_p = new Transform3D();
-        obrot_podstawy_p.rotY(Math.PI/20);
+        obrot_podstawy_p.rotY(Math.PI/30);
         
         obrot_podstawy_t = new Transform3D();
-        obrot_podstawy_t.rotY(-Math.PI/20);
+        obrot_podstawy_t.rotY(-Math.PI/30);
    }
      
    public void obrot_A(){
@@ -278,37 +278,42 @@ public class mainWindow extends JFrame implements KeyListener {
         switch(e.getKeyCode()){
             
         case KeyEvent.VK_UP: 
-            chwytak_X += krok;
-
-            p_chwytaka.setTranslation(new Vector3f(chwytak_X,0.45f,0.0f));
-            chwytak.setTransform(p_chwytaka);
+            
+            
+            if(chwytak_X<0.15){
+                chwytak_X += krok;
+                p_chwytaka.setTranslation(new Vector3f(chwytak_X,0.45f,0.0f));
+                chwytak.setTransform(p_chwytaka);
+                //System.out.println(p_sroba1);
+            }
+            
             break;
         
         case KeyEvent.VK_DOWN:
-            chwytak_X -= krok;
-
-            p_chwytaka.setTranslation(new Vector3f(chwytak_X,0.45f,0.0f));
-            chwytak.setTransform(p_chwytaka); 
+            
+            if(chwytak_X>-0.2){
+                chwytak_X -= krok;
+                p_chwytaka.setTranslation(new Vector3f(chwytak_X,0.45f,0.0f));
+                chwytak.setTransform(p_chwytaka);  
+            }
+            
+            
             break;
             
         case KeyEvent.VK_RIGHT:
-            System.out.println("bb"); 
-
-            czesc_trzecia_Y -= krok;
-
-            p_cylindra3.setTranslation(new Vector3f(0, czesc_trzecia_Y, 0));
-            czesc_trzecia.setTransform(p_cylindra3);            
-            
-            
+            if(czesc_trzecia_Y>-0.25){
+                czesc_trzecia_Y -= krok;
+                p_cylindra3.setTranslation(new Vector3f(0, czesc_trzecia_Y, 0));
+                czesc_trzecia.setTransform(p_cylindra3);           
+            }
             break;
 
         case KeyEvent.VK_LEFT: 
-            
-            czesc_trzecia_Y += krok;
-
-            p_cylindra3.setTranslation(new Vector3f(0, czesc_trzecia_Y, 0));
-            czesc_trzecia.setTransform(p_cylindra3);            
-                    
+            if(czesc_trzecia_Y<0.35){
+                czesc_trzecia_Y += krok;
+                p_cylindra3.setTranslation(new Vector3f(0, czesc_trzecia_Y, 0));
+                czesc_trzecia.setTransform(p_cylindra3);            
+            }       
             break;
         case KeyEvent.VK_W:
             p_cylindra2.mul(obrot_laczika_p);
