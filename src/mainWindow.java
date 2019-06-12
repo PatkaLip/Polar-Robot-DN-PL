@@ -3,7 +3,6 @@ import javax.swing.*;
 import java.awt.*;
 
 import com.sun.j3d.utils.geometry.*;
-//import com.sun.j3d.utils.geometry.Cone;
 import com.sun.j3d.utils.geometry.Cylinder;
 import com.sun.j3d.utils.geometry.Box;
 import com.sun.j3d.utils.geometry.Sphere;
@@ -38,25 +37,32 @@ public class mainWindow extends JFrame implements KeyListener {
     Transform3D     p_podstawy, p_cylindra, p_cylindra2, p_cylindra3, p_chwytaka, p_robota, p_sroba1, p_sroba2;
     TransformGroup  obrot_animacja_podstawa,obrot_animacja_gora, robot, podstawka, czesc_pierwsza, czesc_druga, czesc_trzecia, chwytak,sroba_1, sroba_2;
     RotationInterpolator obracacz, obracacz2;
+    
+    int zadanie;
         
-        Vector3f pozycja_sroba1 = new Vector3f(0.1f,0.45f,0f);
-        Vector3f pozycja_sroba2 = new Vector3f(0.0f,-0.5f,0f);
-        Vector3f pozycja_podstawy = new Vector3f(0.0f,-0.5f,0f);
-        Vector3f pozycja_cylindra = new Vector3f(0.0f,-0.0f,0.0f);
-        Vector3f pozycja_cylindra2 = new Vector3f(-0.0f,0.5f,0.0f);
-        Vector3f pozyjcja_cylindra3 = new Vector3f(-0f, 0f ,0.0f);
-        Vector3f pozycja_robota = new Vector3f(0.0f,0.0f,0.0f); 
-        Vector3f pozycja_chwytaka = new Vector3f(-0.15f,0.45f,0.0f);
-        
-        Transform3D tmp_rot_Z_90  = new Transform3D();
-        Transform3D tmp_rot_Z_270 = new Transform3D();
-        Transform3D tmp_rot_X_90  = new Transform3D();
-        Transform3D tmp_rot_X_270 = new Transform3D();
-//    Timer zegar = new Timer();
-//    TimerTask TimerDrogizadanej = new TimerTask() {
-//	public void run() {
-//        }
-//    };       
+    Vector3f pozycja_sroba1     = new Vector3f(0.1f,0.45f,0.0f);
+    Vector3f pozycja_sroba2     = new Vector3f(0.0f,-0.5f,0.0f);
+    Vector3f pozycja_podstawy   = new Vector3f(0.0f,-0.5f,0.0f);
+    Vector3f pozycja_cylindra   = new Vector3f(0.0f,-0.0f,0.0f);
+    Vector3f pozycja_cylindra2  = new Vector3f(0.0f,0.5f, 0.0f);
+    Vector3f pozyjcja_cylindra3 = new Vector3f(0.0f, 0.0f,0.0f);
+    Vector3f pozycja_robota     = new Vector3f(0.0f,0.0f, 0.0f); 
+    Vector3f pozycja_chwytaka   = new Vector3f(-0.15f,0.45f,0.0f);
+     
+    float czesc_trzecia_Y = 0;
+    float krok = 0.02f;
+    
+    Transform3D tmp_rot_Z_90  = new Transform3D();
+    Transform3D tmp_rot_Z_270 = new Transform3D();
+    Transform3D tmp_rot_X_90  = new Transform3D();
+    Transform3D tmp_rot_X_270 = new Transform3D();
+    
+    Timer zegar = new Timer();
+    TimerTask zegar_ruchu = new TimerTask() {
+	public void run() {
+            
+        }
+    };       
     
     mainWindow(){       
         super("Polar Robot");
@@ -64,9 +70,10 @@ public class mainWindow extends JFrame implements KeyListener {
         setResizable(false);
 
         GraphicsConfiguration config = SimpleUniverse.getPreferredConfiguration();
-        
-        this.addKeyListener(this);
-        
+                
+        zegar = new Timer();
+        zegar.schedule(zegar_ruchu, 0, 200);
+                
         Canvas3D canvas3D = new Canvas3D(config);
         canvas3D.setPreferredSize(new Dimension(1200,700));
         add(canvas3D);
@@ -74,29 +81,36 @@ public class mainWindow extends JFrame implements KeyListener {
         setVisible(true);
         BranchGroup scena = utworzScene();
 	scena.compile();
+                
+        //Obsługa klawiatury
+        this.addKeyListener(this);   
+
         
         SimpleUniverse simpleU = new SimpleUniverse(canvas3D);
 
+        //Ustawienie obserwatora
         Transform3D przesuniecie_obserwatora = new Transform3D();
         przesuniecie_obserwatora.set(new Vector3f(-0.0f,0.0f,6.0f));
         simpleU.getViewingPlatform().getViewPlatformTransform().setTransform(przesuniecie_obserwatora);
 
-        
+        //Obsługa myszki
         OrbitBehavior orbit = new OrbitBehavior(canvas3D, OrbitBehavior.REVERSE_ROTATE);
         orbit.setSchedulingBounds(new BoundingSphere());
 	orbit.setRotYFactor(0);
 	orbit.setMinRadius(Math.PI);
 	orbit.setBounds(new BoundingSphere(new Point3d(0.0d, 0.0d, 0.0d), 20d));
+        
+
              
         simpleU.getViewingPlatform().setViewPlatformBehavior(orbit);
         simpleU.addBranchGraph(scena); 
         
     }
     
-   BranchGroup utworzScene(){
+    BranchGroup utworzScene(){
 
-       wezel_scena = new BranchGroup();
-       bounds =  new BoundingSphere(new Point3d(0, 0, 0), 5);
+        wezel_scena = new BranchGroup();
+        bounds =  new BoundingSphere(new Point3d(0, 0, 0), 5);
   
         obrot_animacja_gora = new TransformGroup();                                    /////////////
         obrot_animacja_gora.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);        
@@ -112,14 +126,14 @@ public class mainWindow extends JFrame implements KeyListener {
         Alpha alpha_animacja2 = new Alpha(-1,25000); 
         obracacz = new RotationInterpolator(alpha_animacja2, obrot_animacja_podstawa);
         obracacz.setSchedulingBounds(bounds);                                       ////////////////
+            
+        swiatla();
+        robot();
        
-       swiatla();
-       robot();
-       
-       obrot_A_gora();
-       obrot_B();
+        obrot_A();
+        obrot_B();
         
-      return wezel_scena;
+       return wezel_scena;
    }
    
  public void swiatla(){
@@ -207,12 +221,14 @@ public class mainWindow extends JFrame implements KeyListener {
         p_cylindra2.mul(tmp_rot_Z_90);             
         
         czesc_druga = new TransformGroup(p_cylindra2);
+        czesc_druga.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
         czesc_druga.addChild(ustawiam_lacznik); 
 //CZESC TRZECIA ROBOTA        
         Cylinder cylinder3 = new Cylinder(0.04f, 1f, Cylinder.ALLOW_CHILDREN_READ + Cylinder.ALLOW_PARENT_READ , wygladCylindra);
         p_cylindra3.set(pozyjcja_cylindra3); 
         
         czesc_trzecia = new TransformGroup(p_cylindra3);
+        czesc_trzecia.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
         czesc_trzecia.addChild(cylinder3);
 //chwytak
         Cylinder chwytak_ = new Cylinder(0.04f, 0.5f, wygladCylindra);
@@ -230,8 +246,7 @@ public class mainWindow extends JFrame implements KeyListener {
        
         czesc_trzecia.addChild(sroba_1);
         czesc_trzecia.addChild(chwytak);
-        czesc_trzecia.addChild(sroba_2);
-        
+        czesc_trzecia.addChild(sroba_2);       
         czesc_druga.addChild(czesc_trzecia);
         obrot_animacja_gora.addChild(czesc_druga);
         pomocniczy.addChild(obrot_animacja_gora);
@@ -240,16 +255,16 @@ public class mainWindow extends JFrame implements KeyListener {
         obrot_animacja_podstawa.addChild(robot);
         
         wezel_scena.addChild(podstawka);
-        wezel_scena.addChild(obrot_animacja_podstawa);
-      
+        wezel_scena.addChild(obrot_animacja_podstawa);  
    }
      
-   public void obrot_A_gora(){
+   public void obrot_A(){
                     
-        p_cylindra2.mul(tmp_rot_X_90);
+        p_cylindra2.mul(tmp_rot_X_270);
         obracacz2.setTransformAxis(p_cylindra2);
         obrot_animacja_gora.addChild(obracacz2);
    } 
+
     
    public void obrot_B(){
        obracacz.setTransformAxis(p_robota);
@@ -258,36 +273,40 @@ public class mainWindow extends JFrame implements KeyListener {
    
     
     @Override
-    public void keyTyped(KeyEvent e) { 
-    }
     public void keyPressed(KeyEvent e) {
         switch(e.getKeyCode()){
-        case KeyEvent.VK_UP: 
-           
-        tmp_rot_X_90.rotX(ERROR);
-        p_cylindra2.mul(tmp_rot_X_90);
-        obracacz2.setTransformAxis(p_cylindra2);
-        obrot_animacja_gora.addChild(obracacz2);
-                         
-        break;
+            
+        case KeyEvent.VK_UP:              
+            break;
+        
         case KeyEvent.VK_DOWN:
-            System.out.println("aa"); break;
+            break;
+            
         case KeyEvent.VK_LEFT:
-            
-            pozyjcja_cylindra3 = new Vector3f(0.2f,0.2f,0.2f);
-            p_cylindra3.setTranslation(pozyjcja_cylindra3);
-            czesc_trzecia.setTransform(p_cylindra3);
-            
             System.out.println("bb"); 
+
+            czesc_trzecia_Y -= krok;
+
+            p_cylindra3.setTranslation(new Vector3f(0, czesc_trzecia_Y, 0));
+            czesc_trzecia.setTransform(p_cylindra3);            
+            
+            
             break;
 
         case KeyEvent.VK_RIGHT: 
-            System.out.println("aa"); break;
+            
+            czesc_trzecia_Y += krok;
+
+            p_cylindra3.setTranslation(new Vector3f(0, czesc_trzecia_Y, 0));
+            czesc_trzecia.setTransform(p_cylindra3);            
+                    
+            break;
         }   
     }
     public void keyReleased(KeyEvent e) {
     }
-   
+    public void keyTyped(KeyEvent e) { 
+    }
 
    public static void main(String args[]){
       new mainWindow();   
