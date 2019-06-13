@@ -30,6 +30,7 @@ import java.awt.event.MouseListener;
 
 import java.util.Vector;
 import javax.media.j3d.Background;
+import java.util.Random;
 
 
 
@@ -38,12 +39,14 @@ public class mainWindow extends JFrame implements KeyListener {
     BranchGroup     wezel_scena, scena;
     BoundingSphere  bounds ;
     Transform3D     p_podstawy, p_cylindra, p_cylindra2, p_cylindra3, p_chwytaka, p_robota, p_sroba1, p_sroba2, obrot_laczika_p,obrot_laczika_t, obrot_podstawy_p, obrot_podstawy_t, p_przyssawka;
-    TransformGroup  robot, podstawka, czesc_pierwsza, czesc_druga, czesc_trzecia, chwytak,sroba_1, sroba_2, przyssawka;
-    Box[] klocki = new Box[10];
-    Transform3D[] p_klocka = new Transform3D[10];
-    TransformGroup[] _klocki = new TransformGroup[10];
+    TransformGroup  robot, podstawka, czesc_pierwsza, czesc_druga, czesc_trzecia, chwytak,sroba_1, sroba_2, przyssawka, koncowka;
+    Box[] klocki = new Box[2];
+    Transform3D[] p_klocka = new Transform3D[2];
+    TransformGroup[] _klocki = new TransformGroup[2];
+    Vector3f[] polozenie_klockow = new Vector3f[2];
     Appearance wyglad_klockow;
     Vector<Integer> kolejka = new Vector<Integer>();
+    Sphere koncowka_;
     
     
     int zadanie;
@@ -57,9 +60,12 @@ public class mainWindow extends JFrame implements KeyListener {
     Vector3f pozycja_robota     = new Vector3f(0.0f,0.0f, 0.0f); 
     Vector3f pozycja_chwytaka   = new Vector3f(-0.15f,0.45f,0.0f);
     Vector3f pozycja_przyssawki = new Vector3f(0f,0.04f,0f);
+    Vector3f pozycja_koncowki   = new Vector3f();
     float chwytak_X = -0.15f;
     float czesc_trzecia_Y = 0;
     float krok = 0.02f;
+    
+    boolean czy_wziete = false;
     //double obrot =(double) Math.PI/20;
     
     Transform3D tmp_rot_Z_90  = new Transform3D();
@@ -102,7 +108,11 @@ public class mainWindow extends JFrame implements KeyListener {
         
         //Ustawienie obserwatora
         Transform3D przesuniecie_obserwatora = new Transform3D();
-        przesuniecie_obserwatora.set(new Vector3f(-0.0f,0.0f,4.0f));
+        przesuniecie_obserwatora.set(new Vector3f(0.0f,0.5f,4.0f));
+        Transform3D obrot_obserwatora = new Transform3D();
+        obrot_obserwatora.rotX(-Math.PI/30);
+        przesuniecie_obserwatora.mul(new Transform3D());
+        przesuniecie_obserwatora.mul(obrot_obserwatora);
         simpleU.getViewingPlatform().getViewPlatformTransform().setTransform(przesuniecie_obserwatora);
 
         //Obsługa myszki
@@ -127,13 +137,49 @@ public class mainWindow extends JFrame implements KeyListener {
         swiatla();
         robot();
         tlo();
+        losowanie_polozen_klockow();
         klocki();
        
         
        return wezel_scena;
    }
     
+    public void losowanie_polozen_klockow(){
+        Random rand = new Random();
+        Random rand2 = new Random();
+        
+        Random rand3 = new Random();
+        Random rand4 = new Random();
+        
+        int x1 = Math.abs(rand.nextInt(5));
+        int x2 = Math.abs(rand2.nextInt(5));
+        
+        float x1f = x1*0.2f;
+        float x2f = x2*0.2f;
+                
+        int z1=Math.abs(rand3.nextInt(5));
+        int z2=Math.abs(rand4.nextInt(5));
+        
+        float z1f = z1*0.2f;
+        float z2f = z2*0.2f;
+        
+        if(x1f>-0.1f && x1f<0.1f){
+            x1f=x1f+0.2f;
+        }
+        if(x2f>-0.1f && x2f<0.1f){
+            x2f=x2f-0.2f;
+        }
+        if(x1f-x2f<0.2f && z1f-z2f<0.2f){
+            z2f=z2f+0.2f;
+        }
+        
+        polozenie_klockow[0] = new Vector3f(x1f, -0.43f, z1f);
+        polozenie_klockow[1] = new Vector3f(x2f, -0.43f, z2f);
+        
+    }
+    
     public void klocki(){
+        
         
         wyglad_klockow = new Appearance();
         //wyglad_klockow.setColoringAttributes(new ColoringAttributes(1f,0.2f,0.2f,ColoringAttributes.NICEST)); 
@@ -141,14 +187,17 @@ public class mainWindow extends JFrame implements KeyListener {
                                              new Color3f(0.2f, 0.9f, 0.0f), new Color3f(1.0f, 0.8f, 1.0f), 80.0f);
         wyglad_klockow.setMaterial(material);
         
-        for(int i=0; i<10; i++){
+        for(int i=0; i<2; i++){
             klocki[i] = new Box(0.1f, 0.1f, 0.1f, Box.ALLOW_CHILDREN_READ + Box.ALLOW_PARENT_READ, wyglad_klockow);
             p_klocka[i]= new Transform3D();
-            p_klocka[i].set(new Vector3f(0+0.2f+i*0.3f, -0.43f, 0f));       /// tu trzeba użyć rand do losowaia pozycji!!! 
+            p_klocka[i].set(polozenie_klockow[i]);       
             _klocki[i] = new TransformGroup(p_klocka[i]);
             _klocki[i].addChild(klocki[i]);
             _klocki[i].setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
-            wezel_scena.addChild(_klocki[i]);   
+            if(!czy_wziete){
+               wezel_scena.addChild(_klocki[i]);  
+            }
+              
         }        
     }
     
@@ -299,11 +348,11 @@ public class mainWindow extends JFrame implements KeyListener {
         chwytak.addChild(chwytak_);
         
   ///////////////////      
-        Sphere koncowka_ = new Sphere(0.05f, wygladPodstawy);
+        koncowka_ = new Sphere(0.05f, wygladPodstawy);
         Transform3D p_koncowka = new Transform3D();
         p_koncowka.set(new Vector3f(0f,0.25f,0f));
         
-        TransformGroup koncowka = new TransformGroup(p_koncowka);
+        koncowka = new TransformGroup(p_koncowka);
         koncowka.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
         koncowka.addChild(koncowka_);
         chwytak.addChild(koncowka);
@@ -316,6 +365,10 @@ public class mainWindow extends JFrame implements KeyListener {
         przyssawka.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
         przyssawka.addChild(przyssawka_);
         koncowka.addChild(przyssawka);   
+        
+        
+        //koncowka.getCollisionBounds();
+        
  ////////////////////       
         
         
@@ -335,20 +388,22 @@ public class mainWindow extends JFrame implements KeyListener {
         czesc_pierwsza.addChild(pomocniczy);
         pomocniczy2.addChild(robot);
         
+        
         wezel_scena.addChild(podstawka);
         wezel_scena.addChild(pomocniczy2);  
         
         obrot_laczika_p = new Transform3D();
-        obrot_laczika_p.rotZ(-Math.PI/30);        
+        obrot_laczika_p.rotZ(-Math.PI/50);        
         
         obrot_laczika_t = new Transform3D();
-        obrot_laczika_t.rotZ(Math.PI/30);
+        obrot_laczika_t.rotZ(Math.PI/50);
         
         obrot_podstawy_p = new Transform3D();
-        obrot_podstawy_p.rotY(Math.PI/30);
+        obrot_podstawy_p.rotY(Math.PI/50);
         
         obrot_podstawy_t = new Transform3D();
-        obrot_podstawy_t.rotY(-Math.PI/30);
+        obrot_podstawy_t.rotY(-Math.PI/50);
+
    }
   public void odwzorowanie_wektora() 
   {
@@ -517,9 +572,14 @@ public class mainWindow extends JFrame implements KeyListener {
             
             odwzorowanie_wektora();
             break;
+
         case KeyEvent.VK_P:
             System.out.println(pozycja_przyssawki); //p_przyssawka.get(pozycja_przyssawki)
+            break;
             
+        case KeyEvent.VK_SPACE:
+                       
+                    //uruchom przyssawke 
             break;
             
         }   
