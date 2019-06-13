@@ -27,6 +27,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
 import java.util.TimerTask;
+import java.util.Vector;
 import javax.media.j3d.Background;
 
 
@@ -41,6 +42,7 @@ public class mainWindow extends JFrame implements KeyListener {
     Transform3D[] p_klocka = new Transform3D[10];
     TransformGroup[] _klocki = new TransformGroup[10];
     Appearance wyglad_klockow;
+    Vector<Integer> kolejka = new Vector<Integer>();
     
     
     int zadanie;
@@ -53,7 +55,7 @@ public class mainWindow extends JFrame implements KeyListener {
     Vector3f pozyjcja_cylindra3 = new Vector3f(0.0f, 0.0f,0.0f);
     Vector3f pozycja_robota     = new Vector3f(0.0f,0.0f, 0.0f); 
     Vector3f pozycja_chwytaka   = new Vector3f(-0.15f,0.45f,0.0f);
-    
+    Vector3f pozycja_przyssawki = new Vector3f(0f,0.04f,0f);
     float chwytak_X = -0.15f;
     float czesc_trzecia_Y = 0;
     float krok = 0.02f;
@@ -314,7 +316,7 @@ public class mainWindow extends JFrame implements KeyListener {
         
         Cylinder przyssawka_ = new Cylinder(0.1f, 0.02f, wygladPodstawy);
         p_przyssawka = new Transform3D();
-        p_przyssawka.set(new Vector3f(0f,0.04f,0f));
+        p_przyssawka.set(pozycja_przyssawki);
         
         przyssawka = new TransformGroup(p_przyssawka);
         przyssawka.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
@@ -354,6 +356,94 @@ public class mainWindow extends JFrame implements KeyListener {
         obrot_podstawy_t = new Transform3D();
         obrot_podstawy_t.rotY(-Math.PI/30);
    }
+  public void odwzorowanie_wektora() 
+  {
+      int i=0;
+      int j;
+    while( i<kolejka.size() )
+    {
+       j=kolejka.elementAt(i); 
+        System.out.println(j);
+       switch(j){
+        case 0:
+        {
+            chwytak_X += krok;
+            p_chwytaka.setTranslation(new Vector3f(chwytak_X,0.45f,0.0f));
+            chwytak.setTransform(p_chwytaka);
+        }
+            break;
+        case 1:
+        {
+            chwytak_X -= krok;
+            p_chwytaka.setTranslation(new Vector3f(chwytak_X,0.45f,0.0f));
+            chwytak.setTransform(p_chwytaka);            
+        }
+            break;
+        case 2:
+        {
+            czesc_trzecia_Y -= krok;
+            p_cylindra3.setTranslation(new Vector3f(0, czesc_trzecia_Y, 0));
+            czesc_trzecia.setTransform(p_cylindra3);
+        }
+            break;
+        case 3:
+        {
+            czesc_trzecia_Y += krok;
+            p_cylindra3.setTranslation(new Vector3f(0, czesc_trzecia_Y, 0));
+            czesc_trzecia.setTransform(p_cylindra3);
+        }
+            break;
+        case 4:
+        {
+             p_cylindra2.mul(obrot_laczika_p);
+            czesc_druga.setTransform(p_cylindra2);
+            
+            p_przyssawka.mul(obrot_laczika_t);
+            przyssawka.setTransform(p_przyssawka);
+        }
+            break;
+        case 5:
+        {
+            p_cylindra2.mul(obrot_laczika_t);
+            czesc_druga.setTransform(p_cylindra2);
+            
+            p_przyssawka.mul(obrot_laczika_p);
+            przyssawka.setTransform(p_przyssawka); 
+        }
+            break;
+        case 6:
+        {
+            p_cylindra.mul(obrot_podstawy_p);
+            czesc_pierwsza.setTransform(p_cylindra);
+        }
+            break;
+        case 7:
+        {
+            p_cylindra.mul(obrot_podstawy_t);
+            czesc_pierwsza.setTransform(p_cylindra);
+        }
+            break;
+        
+    }
+       try
+        {
+            
+                Thread.sleep(100);
+            
+        }
+        catch(InterruptedException e)
+        {
+
+        }
+       
+       
+       i++;
+    }
+    
+    
+    
+    
+  }
   
    
     
@@ -368,6 +458,7 @@ public class mainWindow extends JFrame implements KeyListener {
                 chwytak_X += krok;
                 p_chwytaka.setTranslation(new Vector3f(chwytak_X,0.45f,0.0f));
                 chwytak.setTransform(p_chwytaka);
+                kolejka.add(0);
                 //System.out.println(p_sroba1);
             }
             
@@ -378,7 +469,8 @@ public class mainWindow extends JFrame implements KeyListener {
             if(chwytak_X>-0.2){
                 chwytak_X -= krok;
                 p_chwytaka.setTranslation(new Vector3f(chwytak_X,0.45f,0.0f));
-                chwytak.setTransform(p_chwytaka);  
+                chwytak.setTransform(p_chwytaka); 
+                kolejka.add(1);
             }
             
             
@@ -388,7 +480,8 @@ public class mainWindow extends JFrame implements KeyListener {
             if(czesc_trzecia_Y>-0.25){
                 czesc_trzecia_Y -= krok;
                 p_cylindra3.setTranslation(new Vector3f(0, czesc_trzecia_Y, 0));
-                czesc_trzecia.setTransform(p_cylindra3);           
+                czesc_trzecia.setTransform(p_cylindra3); 
+                kolejka.add(2);
             }
             break;
 
@@ -396,7 +489,8 @@ public class mainWindow extends JFrame implements KeyListener {
             if(czesc_trzecia_Y<0.35){
                 czesc_trzecia_Y += krok;
                 p_cylindra3.setTranslation(new Vector3f(0, czesc_trzecia_Y, 0));
-                czesc_trzecia.setTransform(p_cylindra3);            
+                czesc_trzecia.setTransform(p_cylindra3);   
+                kolejka.add(3);
             }       
             break;
         case KeyEvent.VK_W:
@@ -405,28 +499,56 @@ public class mainWindow extends JFrame implements KeyListener {
             
             p_przyssawka.mul(obrot_laczika_t);
             przyssawka.setTransform(p_przyssawka);
+            kolejka.add(4);
             break;
         case KeyEvent.VK_S:
             p_cylindra2.mul(obrot_laczika_t);
             czesc_druga.setTransform(p_cylindra2);
             
             p_przyssawka.mul(obrot_laczika_p);
-            przyssawka.setTransform(p_przyssawka);            
+            przyssawka.setTransform(p_przyssawka); 
+            kolejka.add(5);
             break;
         case KeyEvent.VK_A:
             p_cylindra.mul(obrot_podstawy_p);
             czesc_pierwsza.setTransform(p_cylindra);
+            kolejka.add(6);
             break;
         case KeyEvent.VK_D:
             p_cylindra.mul(obrot_podstawy_t);
             czesc_pierwsza.setTransform(p_cylindra);
+            kolejka.add(7);
             break;    
+        case KeyEvent.VK_R:
+            chwytak_X=0;
+            czesc_trzecia_Y=0;
+            p_cylindra2.set(new Vector3f(0.0f,0.5f, 0.0f));
+            p_cylindra2.mul(tmp_rot_Z_90);
+            p_cylindra.set(new Vector3f(0.0f,-0.0f,0.0f));
+            p_przyssawka.set(new Vector3f(0f,0.04f,0f));
+            
+            czesc_trzecia.setTransform(p_cylindra3); 
+            czesc_druga.setTransform(p_cylindra2);
+            przyssawka.setTransform(p_przyssawka);
+            czesc_pierwsza.setTransform(p_cylindra);
+            
+            odwzorowanie_wektora();
+            
+            
+            
+                    
+            
+            break;
+                
             
         }   
     }
     public void keyReleased(KeyEvent e) {
     }
     public void keyTyped(KeyEvent e) { 
+    }
+    void nicnierobiacafunkcja(){
+        odwzorowanie_wektora();
     }
 
    public static void main(String args[]){
