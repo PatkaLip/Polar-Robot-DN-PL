@@ -498,6 +498,9 @@ public class mainWindow extends JFrame implements KeyListener {
                 kolejka.add(0);
                 //System.out.println(p_sroba1);
             }
+            if(czy_wziete){
+                podniesienie_klocka();
+            }
             
             break;
         
@@ -508,6 +511,9 @@ public class mainWindow extends JFrame implements KeyListener {
                 p_chwytaka.setTranslation(new Vector3f(chwytak_X,0.45f,0.0f));
                 chwytak.setTransform(p_chwytaka); 
                 kolejka.add(1);
+            }
+            if(czy_wziete){
+                podniesienie_klocka();
             }
             
             
@@ -596,7 +602,14 @@ public class mainWindow extends JFrame implements KeyListener {
             
          break;   
                    
-        }   
+        
+        case KeyEvent.VK_O:
+            czy_wziete=false;
+            uposc_klocek();
+            
+         break;   
+                   
+        } 
     }
     @Override
     public void keyReleased(KeyEvent e) {
@@ -604,9 +617,7 @@ public class mainWindow extends JFrame implements KeyListener {
     @Override
     public void keyTyped(KeyEvent e) { 
     }
-    void nicnierobiacafunkcja(){
-        odwzorowanie_wektora();
-    }
+    
     
     void podniesienie_klocka ()
     {
@@ -624,6 +635,27 @@ public class mainWindow extends JFrame implements KeyListener {
             cosik.y= cosik.y-0.15f;
             p_klocka[0].set(cosik);
             _klocki[0].setTransform(p_klocka[0]);
+    }
+    void uposc_klocek()
+    {
+      Vector3f cosik = new Vector3f();
+      p_klocka[0].get(cosik);
+      for(int i=0 ; i<(cosik.y+0.47f)*100f; i++){
+          cosik.y = cosik.y-0.01f;
+          p_klocka[0].set(cosik);
+          _klocki[0].setTransform(p_klocka[0]);
+         try
+        {
+            Thread.sleep(10); 
+        }
+        catch(InterruptedException e)
+        {
+
+        }
+        
+      }
+      
+      
     }
 
    public static void main(String args[]){
