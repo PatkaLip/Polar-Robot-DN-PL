@@ -1,3 +1,4 @@
+import com.sun.j3d.utils.behaviors.mouse.MouseRotate;
 import javax.media.j3d.*;
 import javax.swing.*;
 import java.awt.*;
@@ -25,8 +26,8 @@ import java.util.Timer;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseListener;
 
-import java.util.TimerTask;
 import java.util.Vector;
 import javax.media.j3d.Background;
 
@@ -69,17 +70,10 @@ public class mainWindow extends JFrame implements KeyListener {
     TextureLoader loader_niebo = new TextureLoader("img/back2.jpg",null); 
     TextureLoader loader_stol = new TextureLoader("img/panele.jpg",null);
    
+    
+    int[] tab_pochyl;
 
-    
-    
-    
-    
-    Timer zegar = new Timer();
-    TimerTask zegar_ruchu = new TimerTask() {
-	public void run() {
-            
-        }
-    };       
+    CollisionDetector detectBox;        
     
     mainWindow(){       
         super("Polar Robot");
@@ -89,14 +83,10 @@ public class mainWindow extends JFrame implements KeyListener {
         GraphicsConfiguration config = SimpleUniverse.getPreferredConfiguration();
         
         
-        
-        
-        zegar = new Timer();
-        zegar.schedule(zegar_ruchu, 0, 200);
-                
+       
         Canvas3D canvas3D = new Canvas3D(config);
         canvas3D.setPreferredSize(new Dimension(1200,700));
-        
+        canvas3D.addKeyListener(this);
         
         add(canvas3D);
         pack();
@@ -105,7 +95,7 @@ public class mainWindow extends JFrame implements KeyListener {
 	scena.compile();
                 
         //Obsługa klawiatury
-        this.addKeyListener(this);   
+        this.addKeyListener(this);
 
         
         SimpleUniverse simpleU = new SimpleUniverse(canvas3D);
@@ -133,7 +123,7 @@ public class mainWindow extends JFrame implements KeyListener {
 
         wezel_scena = new BranchGroup();
         bounds =  new BoundingSphere(new Point3d(0, 0, 0), 5);
-  
+ 
         swiatla();
         robot();
         tlo();
@@ -214,7 +204,11 @@ public class mainWindow extends JFrame implements KeyListener {
    }
  
  
-
+    public void sprawdz_kolizje(){
+        
+    }
+  
+  
       
       
   public void robot(){
@@ -422,29 +416,18 @@ public class mainWindow extends JFrame implements KeyListener {
             p_cylindra.mul(obrot_podstawy_t);
             czesc_pierwsza.setTransform(p_cylindra);
         }
-            break;
-        
     }
        try
         {
-            
-                Thread.sleep(100);
-            
+            Thread.sleep(100); 
         }
         catch(InterruptedException e)
         {
 
         }
-       
-       
        i++;
     }
-    
-    
-    
-    
   }
-  
    
     
     @Override
@@ -533,18 +516,18 @@ public class mainWindow extends JFrame implements KeyListener {
             czesc_pierwsza.setTransform(p_cylindra);
             
             odwzorowanie_wektora();
-            
-            
-            
-                    
+            break;
+        case KeyEvent.VK_P:
+            System.out.println(pozycja_przyssawki); //p_przyssawka.get(pozycja_przyssawki)
             
             break;
-                
             
         }   
     }
+    @Override
     public void keyReleased(KeyEvent e) {
     }
+    @Override
     public void keyTyped(KeyEvent e) { 
     }
     void nicnierobiacafunkcja(){
