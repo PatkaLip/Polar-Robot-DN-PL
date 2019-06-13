@@ -27,12 +27,14 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseListener;
+import java.io.File;
+import java.io.IOException;
 
 import java.util.Vector;
 import javax.media.j3d.Background;
 import java.util.Random;
-
-
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.*;
 
 public class mainWindow extends JFrame implements KeyListener {
 
@@ -76,7 +78,7 @@ public class mainWindow extends JFrame implements KeyListener {
     TextureLoader loader_stol = new TextureLoader("img/panele.jpg",null);
    
     
-    int[] tab_pochyl;
+    private final String clink = "sound/clink.wav";
 
     CollisionDetector detectBox;        
     
@@ -404,6 +406,18 @@ public class mainWindow extends JFrame implements KeyListener {
         obrot_podstawy_t.rotY(-Math.PI/50);
 
    }
+  
+      private void dzwiek(String txt) {
+       try{
+            Clip sound = AudioSystem.getClip();
+            sound.open(AudioSystem.getAudioInputStream(new File(txt)));
+            sound.start();
+        }
+        catch (IOException | LineUnavailableException | UnsupportedAudioFileException exc){
+            exc.printStackTrace(System.out);
+        }
+    }
+  
   public void odwzorowanie_wektora() 
   {
       int i=0;
@@ -498,6 +512,10 @@ public class mainWindow extends JFrame implements KeyListener {
                 kolejka.add(0);
                 //System.out.println(p_sroba1);
             }
+            else if(chwytak_X>0.13)
+            {
+                dzwiek(clink);
+            }
             if(czy_wziete){
                 podniesienie_klocka();
             }
@@ -511,6 +529,10 @@ public class mainWindow extends JFrame implements KeyListener {
                 p_chwytaka.setTranslation(new Vector3f(chwytak_X,0.45f,0.0f));
                 chwytak.setTransform(p_chwytaka); 
                 kolejka.add(1);
+            }
+            else if(chwytak_X<-0)
+            {
+                dzwiek(clink);
             }
             if(czy_wziete){
                 podniesienie_klocka();
@@ -526,6 +548,10 @@ public class mainWindow extends JFrame implements KeyListener {
                 czesc_trzecia.setTransform(p_cylindra3); 
                 kolejka.add(2);
             }
+            else if(czesc_trzecia_Y<-0.23)
+            {
+                dzwiek(clink);
+            }
             if(czy_wziete){
                 podniesienie_klocka();
             }
@@ -537,7 +563,11 @@ public class mainWindow extends JFrame implements KeyListener {
                 p_cylindra3.setTranslation(new Vector3f(0, czesc_trzecia_Y, 0));
                 czesc_trzecia.setTransform(p_cylindra3);   
                 kolejka.add(3);
-            }  
+            } 
+            else if(czesc_trzecia_Y>0.33)
+            {
+                dzwiek(clink);
+            }            
             if(czy_wziete){
                 podniesienie_klocka();
             }
