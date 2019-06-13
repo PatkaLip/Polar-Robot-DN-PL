@@ -38,7 +38,7 @@ public class mainWindow extends JFrame implements KeyListener {
 
     BranchGroup     wezel_scena, scena;
     BoundingSphere  bounds ;
-    Transform3D     p_podstawy, p_cylindra, p_cylindra2, p_cylindra3, p_chwytaka, p_robota, p_sroba1, p_sroba2, obrot_laczika_p,obrot_laczika_t, obrot_podstawy_p, obrot_podstawy_t, p_przyssawka;
+    Transform3D     pozycja_koncowki,p_podstawy, p_cylindra, p_cylindra2, p_cylindra3, p_chwytaka, p_robota, p_sroba1, p_sroba2, obrot_laczika_p,obrot_laczika_t, obrot_podstawy_p, obrot_podstawy_t, p_przyssawka;
     TransformGroup  robot, podstawka, czesc_pierwsza, czesc_druga, czesc_trzecia, chwytak,sroba_1, sroba_2, przyssawka, koncowka;
     Box[] klocki = new Box[2];
     Transform3D[] p_klocka = new Transform3D[2];
@@ -60,7 +60,6 @@ public class mainWindow extends JFrame implements KeyListener {
     Vector3f pozycja_robota     = new Vector3f(0.0f,0.0f, 0.0f); 
     Vector3f pozycja_chwytaka   = new Vector3f(-0.15f,0.45f,0.0f);
     Vector3f pozycja_przyssawki = new Vector3f(0f,0.04f,0f);
-    Vector3f pozycja_koncowki   = new Vector3f();
     float chwytak_X = -0.15f;
     float czesc_trzecia_Y = 0;
     float krok = 0.02f;
@@ -521,6 +520,9 @@ public class mainWindow extends JFrame implements KeyListener {
                 czesc_trzecia.setTransform(p_cylindra3); 
                 kolejka.add(2);
             }
+            if(czy_wziete){
+                podniesienie_klocka();
+            }
             break;
 
         case KeyEvent.VK_LEFT: 
@@ -529,7 +531,10 @@ public class mainWindow extends JFrame implements KeyListener {
                 p_cylindra3.setTranslation(new Vector3f(0, czesc_trzecia_Y, 0));
                 czesc_trzecia.setTransform(p_cylindra3);   
                 kolejka.add(3);
-            }       
+            }  
+            if(czy_wziete){
+                podniesienie_klocka();
+            }
             break;
         case KeyEvent.VK_W:
             p_cylindra2.mul(obrot_laczika_p);
@@ -538,6 +543,9 @@ public class mainWindow extends JFrame implements KeyListener {
             p_przyssawka.mul(obrot_laczika_t);
             przyssawka.setTransform(p_przyssawka);
             kolejka.add(4);
+            if(czy_wziete){
+                podniesienie_klocka();
+            }
             break;
         case KeyEvent.VK_S:
             p_cylindra2.mul(obrot_laczika_t);
@@ -546,16 +554,25 @@ public class mainWindow extends JFrame implements KeyListener {
             p_przyssawka.mul(obrot_laczika_p);
             przyssawka.setTransform(p_przyssawka); 
             kolejka.add(5);
+            if(czy_wziete){
+                podniesienie_klocka();
+            }
             break;
         case KeyEvent.VK_A:
             p_cylindra.mul(obrot_podstawy_p);
             czesc_pierwsza.setTransform(p_cylindra);
             kolejka.add(6);
+            if(czy_wziete){
+                podniesienie_klocka();
+            }
             break;
         case KeyEvent.VK_D:
             p_cylindra.mul(obrot_podstawy_t);
             czesc_pierwsza.setTransform(p_cylindra);
             kolejka.add(7);
+            if(czy_wziete){
+                podniesienie_klocka();
+            }
             break;    
         case KeyEvent.VK_R:
             chwytak_X=0;
@@ -574,14 +591,11 @@ public class mainWindow extends JFrame implements KeyListener {
             break;
 
         case KeyEvent.VK_P:
-            System.out.println(pozycja_przyssawki); //p_przyssawka.get(pozycja_przyssawki)
-            break;
+            czy_wziete=true;
+            podniesienie_klocka();
             
-        case KeyEvent.VK_SPACE:
-                       
-                    //uruchom przyssawke 
-            break;
-            
+         break;   
+                   
         }   
     }
     @Override
@@ -592,6 +606,24 @@ public class mainWindow extends JFrame implements KeyListener {
     }
     void nicnierobiacafunkcja(){
         odwzorowanie_wektora();
+    }
+    
+    void podniesienie_klocka ()
+    {
+        pozycja_koncowki = new Transform3D();
+            przyssawka.getLocalToVworld(pozycja_koncowki);
+            System.out.println(pozycja_koncowki); //p_przyssawka.get(pozycja_przyssawki)
+            
+            p_klocka[0]= pozycja_koncowki;
+            
+            Transform3D cos = new Transform3D();
+            cos.set(new Vector3f(-0.1f, 0f, 0f));
+            
+            Vector3f cosik = new Vector3f();
+            p_klocka[0].get(cosik);
+            cosik.y= cosik.y-0.15f;
+            p_klocka[0].set(cosik);
+            _klocki[0].setTransform(p_klocka[0]);
     }
 
    public static void main(String args[]){
