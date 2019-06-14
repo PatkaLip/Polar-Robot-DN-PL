@@ -29,6 +29,7 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseListener;
 import java.io.File;
 import java.io.IOException;
+import static java.lang.Math.sqrt;
 
 import java.util.Vector;
 import javax.media.j3d.Background;
@@ -66,6 +67,7 @@ public class mainWindow extends JFrame implements KeyListener {
     float czesc_trzecia_Y = 0;
     float krok = 0.02f;
     
+    boolean kolizja_ = false;
     boolean czy_wziete = false;
     //double obrot =(double) Math.PI/20;
     
@@ -137,6 +139,7 @@ public class mainWindow extends JFrame implements KeyListener {
  
         swiatla();
         robot();
+        kolizja();
         tlo();
         losowanie_polozen_klockow();
         klocki();
@@ -252,13 +255,7 @@ public class mainWindow extends JFrame implements KeyListener {
       lightD.setColor(new Color3f(0f, 0f, 0f));
       wezel_scena.addChild(lightD);
    }
- 
- 
-    public void sprawdz_kolizje(){
-        
-    }
-  
-  
+
       
       
   public void robot(){
@@ -365,8 +362,7 @@ public class mainWindow extends JFrame implements KeyListener {
         przyssawka = new TransformGroup(p_przyssawka);
         przyssawka.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
         przyssawka.addChild(przyssawka_);
-        koncowka.addChild(przyssawka);   
-        
+        koncowka.addChild(przyssawka);          
         
         //koncowka.getCollisionBounds();
         
@@ -519,12 +515,12 @@ public class mainWindow extends JFrame implements KeyListener {
             if(czy_wziete){
                 podniesienie_klocka();
             }
-            
+            kolizja();
             break;
         
         case KeyEvent.VK_DOWN:
             
-            if(chwytak_X>-0.2){
+            if (!kolizja() && chwytak_X>-0.2){
                 chwytak_X -= krok;
                 p_chwytaka.setTranslation(new Vector3f(chwytak_X,0.45f,0.0f));
                 chwytak.setTransform(p_chwytaka); 
@@ -538,11 +534,11 @@ public class mainWindow extends JFrame implements KeyListener {
                 podniesienie_klocka();
             }
             
-            
+            kolizja();
             break;
             
         case KeyEvent.VK_RIGHT:
-            if(czesc_trzecia_Y>-0.25){
+            if(!kolizja()){//(czesc_trzecia_Y>-0.25){
                 czesc_trzecia_Y -= krok;
                 p_cylindra3.setTranslation(new Vector3f(0, czesc_trzecia_Y, 0));
                 czesc_trzecia.setTransform(p_cylindra3); 
@@ -571,6 +567,8 @@ public class mainWindow extends JFrame implements KeyListener {
             if(czy_wziete){
                 podniesienie_klocka();
             }
+            
+            kolizja();
             break;
         case KeyEvent.VK_W:
             p_cylindra2.mul(obrot_laczika_p);
@@ -582,17 +580,23 @@ public class mainWindow extends JFrame implements KeyListener {
             if(czy_wziete){
                 podniesienie_klocka();
             }
+            
+            kolizja();
             break;
         case KeyEvent.VK_S:
+            if(!kolizja())
+            {
             p_cylindra2.mul(obrot_laczika_t);
             czesc_druga.setTransform(p_cylindra2);
             
             p_przyssawka.mul(obrot_laczika_p);
             przyssawka.setTransform(p_przyssawka); 
             kolejka.add(5);
+            }
             if(czy_wziete){
                 podniesienie_klocka();
             }
+
             break;
         case KeyEvent.VK_A:
             p_cylindra.mul(obrot_podstawy_p);
@@ -638,6 +642,14 @@ public class mainWindow extends JFrame implements KeyListener {
             uposc_klocek();
             
          break;   
+         
+//        case KeyEvent.VK_Z:
+//            
+//            kolizja();
+//        break;
+                             
+
+        
                    
         } 
     }
@@ -648,12 +660,34 @@ public class mainWindow extends JFrame implements KeyListener {
     public void keyTyped(KeyEvent e) { 
     }
     
+    public boolean kolizja(){
+        
+        pozycja_koncowki = new Transform3D();
+
+        float a1, a3;
+        Vector3f aa = new Vector3f(0, 0, 0);
+        przyssawka.getLocalToVworld(pozycja_koncowki) ;
+        pozycja_koncowki.get(aa);
+        a1 = aa.x*1000000000;
+        a3 = aa.z*1000000000;
+        
+        float r ;
+        r = (float) sqrt(a1*a1 + a3*a3);
+        
+        if(r < 1.90000032E8){
+            dzwiek(clink);
+            return true;
+        }
+       
+        return false;
+    }
     
     void podniesienie_klocka ()
     {
         pozycja_koncowki = new Transform3D();
             przyssawka.getLocalToVworld(pozycja_koncowki);
-            System.out.println(pozycja_koncowki); //p_przyssawka.get(pozycja_przyssawki)
+            //System.out.println(pozycja_koncowki); //p_przyssawka.get(pozycja_przyssawki)
+
             
             p_klocka[0]= pozycja_koncowki;
             
@@ -680,9 +714,7 @@ public class mainWindow extends JFrame implements KeyListener {
         }
         catch(InterruptedException e)
         {
-
-        }
-        
+        }       
       }
       
       
