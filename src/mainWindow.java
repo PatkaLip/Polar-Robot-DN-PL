@@ -29,6 +29,7 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseListener;
 import java.io.File;
 import java.io.IOException;
+import static java.lang.Math.abs;
 import static java.lang.Math.sqrt;
 
 import java.util.Vector;
@@ -69,12 +70,17 @@ public class mainWindow extends JFrame implements KeyListener {
     
     boolean kolizja_ = false;
     boolean czy_wziete = false;
+    boolean czy_blisko = false;
+    boolean kolizja = false;
     //double obrot =(double) Math.PI/20;
     
     Transform3D tmp_rot_Z_90  = new Transform3D();
     Transform3D tmp_rot_Z_270 = new Transform3D();
     Transform3D tmp_rot_X_90  = new Transform3D();
     Transform3D tmp_rot_X_270 = new Transform3D();
+    
+    Transform3D temporary1 = new Transform3D();
+    Transform3D temporary2 = new Transform3D();
     TextureLoader loader_tekstura = new TextureLoader("img/metal.jpg",null);
     TextureLoader loader_niebo = new TextureLoader("img/back2.jpg",null); 
     TextureLoader loader_stol = new TextureLoader("img/panele.jpg",null);
@@ -155,30 +161,30 @@ public class mainWindow extends JFrame implements KeyListener {
         Random rand3 = new Random();
         Random rand4 = new Random();
         
-        int x1 = Math.abs(rand.nextInt(5));
-        int x2 = Math.abs(rand2.nextInt(5));
+        int x1 = Math.abs(rand.nextInt(4));
+        int x2 = Math.abs(rand2.nextInt(4));
         
-        float x1f = x1*0.2f;
-        float x2f = x2*0.2f;
+        float x1f = x1*0.1f;
+        float x2f = x2*0.1f;
                 
-        int z1=Math.abs(rand3.nextInt(5));
-        int z2=Math.abs(rand4.nextInt(5));
+        int z1=Math.abs(rand3.nextInt(4));
+        int z2=Math.abs(rand4.nextInt(4));
         
-        float z1f = z1*0.2f;
-        float z2f = z2*0.2f;
+        float z1f = z1*0.1f;
+        float z2f = z2*0.1f;
         
         if(x1f>-0.1f && x1f<0.1f){
-            x1f=x1f+0.2f;
+            x1f=x1f+0.3f;
         }
-        if(x2f>-0.1f && x2f<0.1f){
-            x2f=x2f-0.2f;
-        }
-        if(x1f-x2f<0.2f && z1f-z2f<0.2f){
-            z2f=z2f+0.2f;
-        }
+//        if(x2f>-0.1f && x2f<0.1f){
+//            x2f=x2f-0.2f;
+//        }
+//        if(x1f-x2f<0.2f && z1f-z2f<0.2f){
+//            z2f=z2f+0.2f;
+//        }
         
-        polozenie_klockow[0] = new Vector3f(x1f, -0.43f, z1f);
-        polozenie_klockow[1] = new Vector3f(x2f, -0.43f, z2f);
+        polozenie_klockow[0] = new Vector3f(-1*x1f, -0.43f, z1f);
+        polozenie_klockow[1] =polozenie_klockow[0];
         
     }
     
@@ -191,7 +197,7 @@ public class mainWindow extends JFrame implements KeyListener {
                                              new Color3f(0.2f, 0.9f, 0.0f), new Color3f(1.0f, 0.8f, 1.0f), 80.0f);
         wyglad_klockow.setMaterial(material);
         
-        for(int i=0; i<2; i++){
+        for(int i=0; i<1; i++){
             klocki[i] = new Box(0.1f, 0.1f, 0.1f, Box.ALLOW_CHILDREN_READ + Box.ALLOW_PARENT_READ, wyglad_klockow);
             p_klocka[i]= new Transform3D();
             p_klocka[i].set(polozenie_klockow[i]);       
@@ -428,13 +434,19 @@ public class mainWindow extends JFrame implements KeyListener {
             chwytak_X += krok;
             p_chwytaka.setTranslation(new Vector3f(chwytak_X,0.45f,0.0f));
             chwytak.setTransform(p_chwytaka);
+            if(czy_wziete){
+                podniesienie_klocka();
+            }
         }
             break;
         case 1:
         {
             chwytak_X -= krok;
             p_chwytaka.setTranslation(new Vector3f(chwytak_X,0.45f,0.0f));
-            chwytak.setTransform(p_chwytaka);            
+            chwytak.setTransform(p_chwytaka);
+            if(czy_wziete){
+                podniesienie_klocka();
+            }            
         }
             break;
         case 2:
@@ -442,6 +454,9 @@ public class mainWindow extends JFrame implements KeyListener {
             czesc_trzecia_Y -= krok;
             p_cylindra3.setTranslation(new Vector3f(0, czesc_trzecia_Y, 0));
             czesc_trzecia.setTransform(p_cylindra3);
+            if(czy_wziete){
+                podniesienie_klocka();
+            }
         }
             break;
         case 3:
@@ -449,6 +464,9 @@ public class mainWindow extends JFrame implements KeyListener {
             czesc_trzecia_Y += krok;
             p_cylindra3.setTranslation(new Vector3f(0, czesc_trzecia_Y, 0));
             czesc_trzecia.setTransform(p_cylindra3);
+            if(czy_wziete){
+                podniesienie_klocka();
+            }
         }
             break;
         case 4:
@@ -458,6 +476,9 @@ public class mainWindow extends JFrame implements KeyListener {
             
             p_przyssawka.mul(obrot_laczika_t);
             przyssawka.setTransform(p_przyssawka);
+            if(czy_wziete){
+                podniesienie_klocka();
+            }
         }
             break;
         case 5:
@@ -467,19 +488,41 @@ public class mainWindow extends JFrame implements KeyListener {
             
             p_przyssawka.mul(obrot_laczika_p);
             przyssawka.setTransform(p_przyssawka); 
+            if(czy_wziete){
+                podniesienie_klocka();
+            }
         }
             break;
         case 6:
         {
             p_cylindra.mul(obrot_podstawy_p);
             czesc_pierwsza.setTransform(p_cylindra);
+            if(czy_wziete){
+                podniesienie_klocka();
+            }
         }
             break;
         case 7:
         {
             p_cylindra.mul(obrot_podstawy_t);
             czesc_pierwsza.setTransform(p_cylindra);
+            if(czy_wziete){
+                podniesienie_klocka();
+            }
         }
+        break;
+        case 8:
+        {
+            czy_wziete=true;
+            podniesienie_klocka();
+        }
+        break;
+        case 9:
+        {
+            czy_wziete=false;
+            uposc_klocek();
+        }
+        break;
     }
        try
         {
@@ -571,19 +614,26 @@ public class mainWindow extends JFrame implements KeyListener {
             kolizja();
             break;
         case KeyEvent.VK_W:
-            p_cylindra2.mul(obrot_laczika_p);
-            czesc_druga.setTransform(p_cylindra2);
+            Vector3f vek  = new Vector3f();     
+            p_cylindra2.get(vek);
             
-            p_przyssawka.mul(obrot_laczika_t);
-            przyssawka.setTransform(p_przyssawka);
-            kolejka.add(4);
-            if(czy_wziete){
-                podniesienie_klocka();
+            if(vek.y<2){
+                p_cylindra2.mul(obrot_laczika_p);
+                czesc_druga.setTransform(p_cylindra2);
+
+                p_przyssawka.mul(obrot_laczika_t);
+                przyssawka.setTransform(p_przyssawka);
+                kolejka.add(4);
+                if(czy_wziete){
+                    podniesienie_klocka();
+                }
+            
             }
             
             kolizja();
             break;
         case KeyEvent.VK_S:
+
             if(!kolizja())
             {
             p_cylindra2.mul(obrot_laczika_t);
@@ -617,6 +667,7 @@ public class mainWindow extends JFrame implements KeyListener {
         case KeyEvent.VK_R:
             chwytak_X=0;
             czesc_trzecia_Y=0;
+            p_klocka[0].set(polozenie_klockow[1]);
             p_cylindra2.set(new Vector3f(0.0f,0.5f, 0.0f));
             p_cylindra2.mul(tmp_rot_Z_90);
             p_cylindra.set(new Vector3f(0.0f,-0.0f,0.0f));
@@ -626,13 +677,19 @@ public class mainWindow extends JFrame implements KeyListener {
             czesc_druga.setTransform(p_cylindra2);
             przyssawka.setTransform(p_przyssawka);
             czesc_pierwsza.setTransform(p_cylindra);
-            
+            _klocki[0].setTransform(p_klocka[0]);
             odwzorowanie_wektora();
             break;
 
         case KeyEvent.VK_P:
-            czy_wziete=true;
-            podniesienie_klocka();
+            if(czy_moge_podniesc())
+            {
+                czy_wziete=true;
+                podniesienie_klocka();
+                kolejka.add(8);
+                
+            }
+            else dzwiek(clink); 
             
          break;   
                    
@@ -640,6 +697,7 @@ public class mainWindow extends JFrame implements KeyListener {
         case KeyEvent.VK_O:
             czy_wziete=false;
             uposc_klocek();
+            kolejka.add(9);
             
          break;   
          
@@ -682,6 +740,20 @@ public class mainWindow extends JFrame implements KeyListener {
         return false;
     }
     
+    public boolean czy_moge_podniesc(){
+        pozycja_koncowki = new Transform3D();
+        Vector3f aa = new Vector3f();
+        przyssawka.getLocalToVworld(pozycja_koncowki) ;
+        pozycja_koncowki.get(aa);
+        float odlegloscX = abs(polozenie_klockow[0].x - aa.x);
+        float odlegloscY = abs(polozenie_klockow[0].y - aa.y);
+        float odlegloscZ = abs(polozenie_klockow[0].z - aa.z);
+        if(odlegloscX<0.1f && odlegloscY<0.2f && odlegloscZ<0.2f)
+        return true;
+        return false;
+        
+    }
+    
     void podniesienie_klocka ()
     {
         pozycja_koncowki = new Transform3D();
@@ -704,7 +776,7 @@ public class mainWindow extends JFrame implements KeyListener {
     {
       Vector3f cosik = new Vector3f();
       p_klocka[0].get(cosik);
-      for(int i=0 ; i<(cosik.y+0.47f)*100f; i++){
+      for(int i=0 ; i<(cosik.y+0.43f)*100f; i++){
           cosik.y = cosik.y-0.01f;
           p_klocka[0].set(cosik);
           _klocki[0].setTransform(p_klocka[0]);
@@ -719,6 +791,8 @@ public class mainWindow extends JFrame implements KeyListener {
       
       
     }
+    
+   
 
    public static void main(String args[]){
       new mainWindow();   
