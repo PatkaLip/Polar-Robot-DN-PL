@@ -68,11 +68,36 @@ public class mainWindow extends JFrame implements KeyListener {
     float czesc_trzecia_Y = 0;
     float krok = 0.02f;
     
+    
+    void Reset()
+    {
+        p_sroba1.set(pozycja_sroba1);
+        p_sroba2.set(pozycja_sroba2);
+        p_podstawy.set(pozycja_podstawy);
+        p_cylindra.set(pozycja_cylindra);
+        p_cylindra2.set(pozycja_cylindra2);
+        p_cylindra3.set(pozyjcja_cylindra3);
+        p_robota.set(pozycja_robota);
+        p_chwytaka.set(pozycja_chwytaka);
+        p_przyssawka.set(pozycja_przyssawki);
+        
+        p_cylindra2.mul(tmp_rot_Z_90); 
+        p_chwytaka.mul( tmp_rot_Z_90);
+        
+        chwytak.setTransform(p_chwytaka);
+        czesc_trzecia.setTransform(p_cylindra3); 
+        czesc_druga.setTransform(p_cylindra2);
+        przyssawka.setTransform(p_przyssawka);
+        czesc_pierwsza.setTransform(p_cylindra);
+        
+        
+    }
+    
     boolean kolizja_ = false;
     boolean czy_wziete = false;
     boolean czy_blisko = false;
-    boolean kolizja = false;
-    //double obrot =(double) Math.PI/20;
+    boolean kolizja = false;    
+    
     
     Transform3D tmp_rot_Z_90  = new Transform3D();
     Transform3D tmp_rot_Z_270 = new Transform3D();
@@ -87,8 +112,7 @@ public class mainWindow extends JFrame implements KeyListener {
    
     
     private final String clink = "sound/clink.wav";
-
-    CollisionDetector detectBox;        
+       
     
     mainWindow(){       
         super("Polar Robot");
@@ -96,9 +120,7 @@ public class mainWindow extends JFrame implements KeyListener {
         setResizable(false);
 
         GraphicsConfiguration config = SimpleUniverse.getPreferredConfiguration();
-        
-        
-       
+                   
         Canvas3D canvas3D = new Canvas3D(config);
         canvas3D.setPreferredSize(new Dimension(1200,700));
         canvas3D.addKeyListener(this);
@@ -124,18 +146,17 @@ public class mainWindow extends JFrame implements KeyListener {
         przesuniecie_obserwatora.mul(obrot_obserwatora);
         simpleU.getViewingPlatform().getViewPlatformTransform().setTransform(przesuniecie_obserwatora);
 
+        
         //Obsługa myszki
         OrbitBehavior orbit = new OrbitBehavior(canvas3D, OrbitBehavior.REVERSE_ROTATE);
         orbit.setSchedulingBounds(new BoundingSphere());
 	orbit.setRotYFactor(0);
 	orbit.setMinRadius(Math.PI);
 	orbit.setBounds(new BoundingSphere(new Point3d(0.0d, 0.0d, 0.0d), 20d));
+                     
         
-
-             
         simpleU.getViewingPlatform().setViewPlatformBehavior(orbit);
-        simpleU.addBranchGraph(scena); 
-        
+        simpleU.addBranchGraph(scena);   
     }
     
     BranchGroup utworzScene(){
@@ -176,15 +197,9 @@ public class mainWindow extends JFrame implements KeyListener {
         if(x1f>-0.1f && x1f<0.1f){
             x1f=x1f+0.3f;
         }
-//        if(x2f>-0.1f && x2f<0.1f){
-//            x2f=x2f-0.2f;
-//        }
-//        if(x1f-x2f<0.2f && z1f-z2f<0.2f){
-//            z2f=z2f+0.2f;
-//        }
         
         polozenie_klockow[0] = new Vector3f(-1*x1f, -0.43f, z1f);
-        polozenie_klockow[1] =polozenie_klockow[0];
+        polozenie_klockow[1] = polozenie_klockow[0];
         
     }
     
@@ -192,7 +207,6 @@ public class mainWindow extends JFrame implements KeyListener {
         
         
         wyglad_klockow = new Appearance();
-        //wyglad_klockow.setColoringAttributes(new ColoringAttributes(1f,0.2f,0.2f,ColoringAttributes.NICEST)); 
         Material material = new Material(new Color3f(0.8f, 0.9f,0.8f), new Color3f(0.1f,0.2f,0.3f),
                                              new Color3f(0.2f, 0.9f, 0.0f), new Color3f(1.0f, 0.8f, 1.0f), 80.0f);
         wyglad_klockow.setMaterial(material);
@@ -206,12 +220,11 @@ public class mainWindow extends JFrame implements KeyListener {
             _klocki[i].setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
             if(!czy_wziete){
                wezel_scena.addChild(_klocki[i]);  
-            }
-              
+            }  
         }        
     }
     
-    public void tlo (){
+    public void tlo(){
         
         ImageComponent2D image_niebo = loader_niebo.getImage();
 
@@ -288,10 +301,7 @@ public class mainWindow extends JFrame implements KeyListener {
         
       
         Appearance  wygladCylindra = new Appearance();
-        wygladCylindra.setTexture(metal);
-        //PolygonAttributes polygAttr = new PolygonAttributes();
-        //polygAttr.setPolygonMode(PolygonAttributes.POLYGON_LINE);
-        //wygladCylindra.setPolygonAttributes(polygAttr);     
+        wygladCylindra.setTexture(metal);   
 
         p_podstawy    = new Transform3D();   
         p_cylindra    = new Transform3D();  
@@ -304,7 +314,6 @@ public class mainWindow extends JFrame implements KeyListener {
 //SROBY 
         Cylinder sroba1 = new Cylinder(0.05f , 0.03f , wygladPodstawy);
         p_sroba1.set(pozycja_sroba1);
-     //   p_sroba1.mul(tmp_rot_Z_90);
         sroba_1 = new TransformGroup(p_sroba1);
         sroba_1.addChild(sroba1);
         
@@ -351,7 +360,7 @@ public class mainWindow extends JFrame implements KeyListener {
         chwytak.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
         chwytak.addChild(chwytak_);
         
-  ///////////////////      
+///////////////////      
         koncowka_ = new Sphere(0.05f, wygladPodstawy);
         Transform3D p_koncowka = new Transform3D();
         p_koncowka.set(new Vector3f(0f,0.25f,0f));
@@ -369,9 +378,7 @@ public class mainWindow extends JFrame implements KeyListener {
         przyssawka.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
         przyssawka.addChild(przyssawka_);
         koncowka.addChild(przyssawka);          
-        
-        //koncowka.getCollisionBounds();
-        
+                
  ////////////////////       
         
         
@@ -701,20 +708,18 @@ public class mainWindow extends JFrame implements KeyListener {
             
          break;   
          
-//        case KeyEvent.VK_Z:
-//            
-//            kolizja();
-//        break;
+        case KeyEvent.VK_Z:
+            
+            Reset();
+        break;
                              
 
         
                    
         } 
     }
-    @Override
     public void keyReleased(KeyEvent e) {
     }
-    @Override
     public void keyTyped(KeyEvent e) { 
     }
     
