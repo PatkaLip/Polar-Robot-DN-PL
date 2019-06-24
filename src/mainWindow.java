@@ -570,7 +570,7 @@ public class mainWindow extends JFrame implements KeyListener {
         
         case KeyEvent.VK_DOWN:
             
-            if (!kolizja() && chwytak_X>-0.2){
+            if (!kolizja() && !kolizja2() && chwytak_X>-0.2){
                 chwytak_X -= krok;
                 p_chwytaka.setTranslation(new Vector3f(chwytak_X,0.45f,0.0f));
                 chwytak.setTransform(p_chwytaka); 
@@ -588,7 +588,7 @@ public class mainWindow extends JFrame implements KeyListener {
             break;
             
         case KeyEvent.VK_RIGHT:
-            if(!kolizja()){//(czesc_trzecia_Y>-0.25){
+            if(!kolizja() && !kolizja2()){//(czesc_trzecia_Y>-0.25){
                 czesc_trzecia_Y -= krok;
                 p_cylindra3.setTranslation(new Vector3f(0, czesc_trzecia_Y, 0));
                 czesc_trzecia.setTransform(p_cylindra3); 
@@ -624,7 +624,7 @@ public class mainWindow extends JFrame implements KeyListener {
             Vector3f vek  = new Vector3f();     
             p_cylindra2.get(vek);
             
-            if(vek.y<2){
+            if(!kolizja3()){
                 p_cylindra2.mul(obrot_laczika_p);
                 czesc_druga.setTransform(p_cylindra2);
 
@@ -641,7 +641,7 @@ public class mainWindow extends JFrame implements KeyListener {
             break;
         case KeyEvent.VK_S:
 
-            if(!kolizja())
+            if(!kolizja() && !kolizja2())
             {
             p_cylindra2.mul(obrot_laczika_t);
             czesc_druga.setTransform(p_cylindra2);
@@ -712,8 +712,9 @@ public class mainWindow extends JFrame implements KeyListener {
             
             Reset();
         break;
-                             
-
+        case KeyEvent.VK_M:      
+            kolizja3();
+        break;
         
                    
         } 
@@ -744,7 +745,41 @@ public class mainWindow extends JFrame implements KeyListener {
        
         return false;
     }
-    
+        public boolean kolizja2(){
+        
+        pozycja_koncowki = new Transform3D();
+
+        float a2;
+        Vector3f aa = new Vector3f(0, 0, 0);
+        przyssawka.getLocalToVworld(pozycja_koncowki) ;
+        pozycja_koncowki.get(aa);
+        a2 = aa.y;   
+
+        if(a2 < -0.27620143){
+            return true;
+        }
+       
+        return false;
+    }
+        
+        public boolean kolizja3(){
+        
+        pozycja_koncowki = new Transform3D();
+
+        float a2;
+        Vector3f aa = new Vector3f(0, 0, 0);
+        przyssawka.getLocalToVworld(pozycja_koncowki) ;
+        pozycja_koncowki.get(aa);
+        a2 = aa.y;   
+        
+            System.out.println(a2);
+
+        if(a2 > 0.62894356){
+            return true;
+        }
+        return false;
+    }
+        
     public boolean czy_moge_podniesc(){
         pozycja_koncowki = new Transform3D();
         Vector3f aa = new Vector3f();
