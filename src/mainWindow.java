@@ -3,7 +3,6 @@ import javax.media.j3d.*;
 import javax.swing.*;
 import java.awt.*;
 
-import com.sun.j3d.utils.geometry.*;
 import com.sun.j3d.utils.geometry.Cylinder;
 import com.sun.j3d.utils.geometry.Box;
 import com.sun.j3d.utils.geometry.Sphere;
@@ -11,29 +10,19 @@ import com.sun.j3d.utils.universe.SimpleUniverse;
 import com.sun.j3d.utils.behaviors.vp.OrbitBehavior;
 import com.sun.j3d.utils.image.TextureLoader;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-
 import javax.vecmath.Color3f;
 import javax.vecmath.Point3d;
 import javax.vecmath.Point3f;
 import javax.vecmath.Vector3f;
-import javax.vecmath.Vector3d;
 
-import java.util.Timer;
-
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.awt.event.MouseListener;
 import java.io.File;
 import java.io.IOException;
 import static java.lang.Math.abs;
 import static java.lang.Math.sqrt;
 
 import java.util.Vector;
-import javax.media.j3d.Background;
 import java.util.Random;
 import javax.sound.sampled.Clip;
 import javax.sound.sampled.*;
@@ -90,6 +79,10 @@ public class mainWindow extends JFrame implements KeyListener {
         przyssawka.setTransform(p_przyssawka);
         czesc_pierwsza.setTransform(p_cylindra);
         
+        losowanie_polozen_klockow();
+                    p_klocka[0]= new Transform3D();
+            p_klocka[0].set(polozenie_klockow[0]); 
+        _klocki[0].setTransform(p_klocka[0]);
         
     }
     
@@ -198,7 +191,7 @@ public class mainWindow extends JFrame implements KeyListener {
             x1f=x1f+0.3f;
         }
         
-        polozenie_klockow[0] = new Vector3f(-1*x1f, -0.43f, z1f);
+        polozenie_klockow[0] = new Vector3f(-1*x1f, -0.42f, z1f);
         polozenie_klockow[1] = polozenie_klockow[0];
         
     }
@@ -755,7 +748,7 @@ public class mainWindow extends JFrame implements KeyListener {
         pozycja_koncowki.get(aa);
         a2 = aa.y;   
 
-        if(a2 < -0.27620143){
+        if(a2 < -0.2628777){
             return true;
         }
        
